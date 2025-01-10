@@ -1,87 +1,62 @@
-**Host:**
+**Host:**  
+So I'm very happy to introduce our next speaker today, we've got Aswath Srinivasan, who's going to be talking about leveraging User Behavior Insights (UBI) to enhance search relevance. For those of you who don't know, UBI is a really exciting project that we've actually been working on with the OpenSearch team at Open Source Connections. It's one of those ideas where, when you understand it, you think, why hasn't this been done before? It's wonderful to hear more about it. Aswath is a Senior Search Engine Architect at AWS. He's been working in search as a Search Engineer for several years in use cases like e-commerce search, enterprise search, and site search. Yes, he's currently working on OpenSearch. So, without further ado, I'm going to hand it over to Aswath. Round of applause. Thank you, Charlie.
 
-I'm very happy to introduce our next speaker today. We've got Aswath Srinivasan, who's going to be talking about leveraging User Behavior Insights (UBI) to enhance search relevance. For those of you who don't know, UBI is a really exciting project that we've actually been working on with the OpenSearch team at OpenSource Connections. It's one of those ideas where, when you understand it, you wonder why it hasn't been done before. It's wonderful to hear more about it. Aswath is a Senior Search Engine Architect at AWS, with several years of experience in use cases like e-commerce search, enterprise search, and site search. He's currently working on OpenSearch. So, without further ado, I'm going to hand over to Aswath. A round of applause, please.
+**Aswath Srinivasan:**  
+I hope the folks on Zoom can hear me. Please put it in the chat if you can't. Good morning, good afternoon, good evening, wherever you are joining from. My name is Aswath, and I am going to talk about leveraging UBI, User Behavior Insights, to enhance your search relevancy today. Having worked with several search engines and various use cases over the past several years, I am currently focusing my attention and effort towards OpenSearch. These days, I'm quite glad about it. OpenSearch is a little over three years old now, with over 700 million downloads, ranking fourth in the DB engines ranking with 80 different partners and growing every day. It is offered by multiple major cloud providers such as AWS, Oracle, Huawei Cloud, Azure, and GCP via our partners, all offering managed solutions for OpenSearch.
 
-**Aswath Srinivasan:**
+If you have not seen the announcement, OpenSearch is now a software foundation under the Linux Foundation. With all these things, I'm happy to say that we are doing pretty well. I'm not sure if you're able to capture the color scheme compatibility between OpenSearch and the Linux Foundation — I think this was meant to happen. Any questions about how open sources OpenS is are self-answered.
 
-I hope the folks in Zoom can hear me. Good morning, good afternoon, and good evening to everyone joining from different parts of the world. My name is Aswath, and today I'm going to talk about leveraging UBI, User Behavior Insights, to enhance your search relevance.
+In this talk, I will be discussing UBI — User Behavior Insights — what it is, what it provides, UBI with OpenSearch, how you use UBI with OpenSearch and beyond, and the art of the possibilities with UBI. Unfortunately, I have not started my timer, so give me just one second.
 
-Having worked with several search engines across various use cases over the years, I am now focusing my efforts on OpenSearch. I'm quite glad about it and how OpenSearch is evolving. OpenSearch is a little over three years old now, with over 700 million downloads. It ranks fourth in the DB engines ranking with around 80 different partners and continues to grow with major cloud providers like AWS, where I'm employed, Oracle, Huawei Cloud, Azure, and GCP, offering managed solutions for OpenSearch. OpenSearch is now under the Linux Foundation and is doing well.
+Now, why UBI? Unlike in the database world where a good result is well-defined, in the search world, this is not the case. Everyone wants the best result, right? But 'best' is relative. Best according to whom? Best according to you, your product managers, your business, your relevancy engineers? But maybe the users? I think they are the end target. So, if we somehow capture what the users are doing, we should be able to infer what is good. That's the bottom line of UBI, at least at this point.
 
-In this talk, I will discuss UBI, User Behavior Insights. We'll explore why UBI is important, what it provides, how to use UBI with OpenSearch, and the possibilities it opens up. Unfortunately, I didn't start my timer, so please bear with me.
+With this strong justification, or at least I hope, I will move on to the UBI goals. The goals for UBI are to collect data. UBI enables you to collect data; you own the data, so you control the data. You're not giving the data to anyone. Let me put it out there, so with UBI, you can measure what searches are being done. Did the user use the type-ahead feature? Did the user click on the facet refiner to filter the search? Did they click on a search result? Did they not click on a search result? Are several users not clicking on the same search results? Maybe it's an anomaly listing that shouldn't even be there on the first page.
 
-The importance of UBI lies in the fact that in the database world, a good result is well-defined, which is not the case in the search world. Everyone wants the best result, but "best" is very subjective and varies for different stakeholders. The end targets, however, should be the users. By capturing user behaviors, we should infer what is good and improve search strategies accordingly.
+It's about the sequence in which the searches are executed, how they relate to each other, how long it took for the search to display, and when a purchase is made, understanding the search journey that led to it. These are the kinds of data UBI collects. Some of you or many of you may have questions about existing tools like Google Analytics or Snowplow and others that capture user interactions and dwell time. However, in the context of search and non-static pages such as a search results page, these tools often provide noisy metrics. You're going to need a data engineer to clean up this data before your search engineer can make sense of it.
 
-UBI's goals include collecting data such as search interactions, queries, and result engagements. This data is owned by you, not given to anyone else. UBI helps identify anomalies, optimize user interactions, and refine search relevance over time.
+The whole point of UBI is that it provides data specifically collected by search engineers for search engineers. It cannot be more tailor-made than this. If you're still not convinced, you're likely from a different sector. As a search engineer, you're probably using several of these tools or search components. You're using QUY, integrating semantic search, or doing hybrid searches with lexical and semantic models. But how do you know if you're making your search better or worse? Evaluation tools, A/B testing, and creating judgment lists are options, but measuring and tracking user behavior is the source for anything you are doing. That is why UBI.
 
-Although there are tools like Google Analytics, Core Metrics, or Snowplow, they often provide generic data that requires cleaning before use by search engineers. UBI, however, is tailored exclusively to the needs of search engineers, making it more precise and relevant.
+UBI provides, at its core, a standardized schema. It also provides client-side instrumentation, a bunch of JavaScript tools, and means to collect and analyze the data. Zooming into the technicals, at least in OpenSearch right now, UBI is represented as two indices: the query index and the events index. The queries index logs the search queries, while the events index captures click metrics. I hope this is legible enough. The standardized schema for the queries index includes a client ID, the entire search query, query attributes such as application name, a query ID which tracks the user journey, the response ID hits indicated by document IDs returned, timestamps, and the user search term.
 
-UBI with OpenSearch involves installing a plugin to collect and analyze search data efficiently. At its core, UBI provides a standardized schema, client-side instrumentation, tools to collect the generated data, and means to analyze this data.
+For the events index, fields like action name capture user interactions such as facet clicks and type-ahead uses. The index also includes application type, client ID, event attributes, and message details of the search result clicked, correlating with the query ID from the queries index and timestamp. Both these indices can be viewed as time-series data due to included timestamps. The events attributes section serves as a flexible area to capture anything else that you want, but balance is needed here to avoid mapping explosion issues.
 
-Looking at the technical details, UBI in OpenSearch is represented by two indices: the Queries Index and the Events Index. The Queries Index logs search queries, while the Events Index captures user interactions like clicks.
+Let’s move forward to the integration of UBI with OpenSearch. UBI in OpenSearch is a plugin that requires installation. A search is performed, and the plugin identifies and logs the search request into the UBI query index, including the document IDs returned. For user activities such as clicks, client-side instrumentation logs these into the UBI events index. Data can be directly sent to OpenSearch or go through Data Prepper for larger scale operations, allowing merging of sensitive backend data when needed. 
 
-For example, here's the standardized schema for the Queries Index:
-- ClientID identifies the user.
-- Query captures the entire OpenSearch DSL query.
-- Query Attributes are a flat object for extended metadata.
-- QueryID is crucial for tracking the search journey.
-- ResponseID logs docIDs sent to users.
-- User Query records the search term used.
+Going to a demo: in OpenSearch Dashboards, go to the tools section to issue API calls to interact with OpenSearch. Installing the UBI plugin results in the creation of the queries and events indices using a standardized schema. Now populating these indices involves making standard search calls including a UBI clause with query ID, user query, client ID, and query attributes like application name. On the events side, this is handled by the frontend using APIs to log actions into the events index.
 
-Similarly, the Events Index records metrics like Action Name, Application, ClientID, and Event Attributes, which contain detailed information about user interactions such as search result positions and dwell time.
+Once data is ingested, analysis is the next step. The OpenSearch dashboard provides visualizations like pie charts indicating user actions, session duration, and financial metrics based on user queries and event data. With SQL handler support in OpenSearch, anyone familiar with SQL can interact with the data in an ad-hoc manner. This makes it easier for stakeholders familiar with SQL to extract meaningful insights without waiting for visualization efforts. 
 
-To implement UBI with OpenSearch, we need to install the plugin. The data flow consists of users performing searches, and their actions being logged by UBI. For example, search requests are logged, and user interactions with facets or clicks on search results are recorded.
+UBI also helps create a judgment list needed for implementing secondary re-rankers like learning to rank strategies by joining queries and events indices, grading document interactions into relevance categories. Though OpenSearch SQL currently cannot fully handle these SQL requirements, the idea has been presented showing potential practical implementations via Hadoop client usage.
 
-In a demonstration using the OpenSearch dashboards, we can see how search queries and events are collected and stored. By executing a search query with UBI, we can view documented details like query IDs and search results. For event logging, client-side instrumentation is used to capture interactions like product clicks or filter usage.
+As data grows, cost management is important. OpenSearch allows warm nodes for older data and transforms to summarize aging data, cutting storage costs while retaining essential analytics potential. The NAV sensors allow alerting for search behavior anomalies like an absent trending product.
 
-With a fully populated UBI schema, we can create dashboards to analyze the data for insights. We can visualize actions performed, click positions, profit margins, popular searches, session durations, and spending patterns. These insights are readily available for download and use in OpenSearch dashboards. By using standardized schema, you can also benefit from dashboards developed by others within the open-source community.
+Finally, the idea of UBI is not limited to OpenSearch alone. While current dependency exists on OpenSearch for the queries index, UBI can still be used with other search engines to handle events logging and streamline processes, merging search results data subsequently. This opens new opportunities for extending UBI across diverse search implementations.
 
-Additionally, OpenSearch allows the use of SQL for ad-hoc querying and analysis, making it accessible to various stakeholders. Sample queries for longtail searches, trending searches, and user sessions can provide valuable insights.
+**Host:**  
+That was a fantastic presentation. Thank you, Aswath. And just to add to that, I'd like to extend my thanks to the OC team as well. Working on this plugin with OpenSearch and their openness to making this a truly open schema and specification is commendable. It's open source, and not just for their engine, but as a potential way for any search engine to implement user behavior logging and collectively improve the search process for everyone. It's an exciting opportunity.
 
-In terms of possibilities, leveraging the data for machine learning and model training becomes feasible. You can use various AWS services and open-source software with exported data from OpenSearch. UBI provides the necessary click metrics required for optimization and learning-to-rank approaches.
+**Audience Member:**  
+Hi, you mentioned about the query ID and briefly talked about how you can reuse it, particularly in the context of type-ahead search. Does your schema design support capturing insights from typing sessions efficiently? And do you already have plans to extend it?
 
-UBI with OpenSearch encourages using anomaly detection to identify trending searches or anomalies in your search data. It's essential to implement efficient strategies for managing data growth, like using rollup indices to summarize older data and cut costs.
+**Aswath Srinivasan:**  
+The way I see it, when you use type-ahead, the user activity is logged as an event. This event records the type-ahead usage. On the queries index, you wouldn't necessarily see this explicitly because the query ID will be the same for the selected suggestion, and that ID will also be linked to the event indicating type-ahead was used. Does that answer your question? Yes? Great.
 
-Although UBI is currently available with OpenSearch, it can be adapted for other search engines in the future. External frameworks can support non-OpenSearch queries, with the events index being usable irrespective of your choice of search engine.
+**Online Question from Tobias:**  
+The detailed data from UBI can be very useful for training machine learning models. What’s the best way to retrieve this data from OpenSearch as a data product?
 
-Finally, we're working on an RFC to further enhance UBI by automating implicit judgments and creating search metrics. This will enhance the search optimization process. If you're interested in contributing or have suggestions, we're open to collaboration.
+**Aswath Srinivasan:**  
+For training models, you would likely require click metrics. OpenSearch supports bulk data export via scroll API or through search after, which we're recommending these days. You can efficiently export data from OpenSearch in large volumes, or potentially in real time, to feed it into external systems for model training.
 
-Thank you for your attention. I hope I am on time.
+**Audience Member:**  
+Is the UBI plugin available for the latest OpenSearch 2.17 version, or is it also compatible with 2.15?
 
-**Host:**
+**Aswath Srinivasan:**  
+The first release of the UBI plugin was with version 2.14, and what I demonstrated was with 2.15. It's safe to assume that anything post-2.15 is compatible; the plugin version aligns with each OpenSearch release, so make sure to use the appropriate version.
 
-Thank you, Ashwath. I'd also like to extend my thanks from the OpenSource Connections team. One of the intriguing aspects of working on this plugin with OpenSearch is their commitment to making it a truly open-source schema. This makes it a potential way for any search engine to log user interactions and for search engineers to collaboratively build something that improves search effectiveness.
+**Online Question from Deb BR:**  
+How do you manage the explosion of events when there are many entries from users’ persistent clicking activities?
 
-We've got some questions from online, but let's start with the room. Does anyone have a question for Aswath?
+**Aswath Srinivasan:**  
+Mapping explosion is a common concern. The key is balancing conservativeness and flexibility within mapping. Define mappings clearly so there's no unintended dynamic mapping, which could be potentially dangerous due to its unrestrained growth in fields. Use judgments wisely to decide the data’s long-term value and manage storage costs effectively.
 
-**Audience Member 1:**
-
-Hi, you mentioned the Query ID and how you could reuse it. From a type-ahead search perspective, does your schema capture insights during a typing session? Type-ahead searches have their own metrics and behaviors, how does your schema accommodate these?
-
-**Aswath Srinivasan:**
-
-When a user uses a type-ahead and clicks on a suggestion, this is considered an event for the Events Index. It's captured under the action metrics but not on the Queries Index. The Query ID will be the same for the chosen suggestion, logging the event. This dual-index approach should provide the necessary insights.
-
-**Host:**
-
-We have an online question here from Tobias. Could the detailed data from UBI be used for those interested in training ML models? What's the best way to extract that data out of OpenSearch?
-
-**Aswath Srinivasan:**
-
-Yes, UBI data can be very useful for training models, especially for tasks requiring click metrics. OpenSearch provides scroll APIs and other methods for exporting data in large volumes to support ML workloads. You can also move data in real-time to other services for model training.
-
-**Host:**
-
-Another question from the room?
-
-**Audience Member 2:**
-
-Regarding the UBI plugin version, is it compatible with the latest 2.17 version of OpenSearch? What about 2.15?
-
-**Aswath Srinivasan:**
-
-The UBI plugin's first release was for version 2.14. What I demonstrated was 2.15, so it's safe to say anything after 2.15 should be compatible. Each OpenSearch version will have a corresponding plugin version.
-
-**Host:**
-
-Thank you very much, Aswath. Any final comments or questions?
+Thank you very much, everyone.

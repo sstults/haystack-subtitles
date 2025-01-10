@@ -10,12 +10,18 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
+## Handy Commnads
 Get the list of all videos (this isn't working to get just a flat list of playlists - removing the extra slash doesn't help)
 ```bash
 yt-dlp --flat-playlist -J "https://www.youtube.com/@OpenSourceConnections//playlists" > data/playlists.json
 ```
 
-Make it pretty
+Download the captions for Haystack EU 2024
 ```bash
-jsonlint -p data/playlists.json > data/playlists-pretty.json 
+yt-dlp --windows-filenames --write-description --write-auto-subs  --skip-download --sub-lang en https://www.youtube.com/playlist\?list\=PLCoJWKqBHERvq9-C7L8gyHA2aibuSkOTH
+```
+
+Download the captions for Haystack US 2024
+```bash
+yt-dlp --windows-filenames --write-description --write-auto-subs  --skip-download --sub-lang en https://www.youtube.com/playlist\?list\=PLCoJWKqBHERs3G3WLLgRsgN5GgzRYtB2K
 ```

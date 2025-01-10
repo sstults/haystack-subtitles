@@ -9,14 +9,15 @@ import webvtt
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()  # take environment variables from .env.
+load_dotenv()
 
+logging.basicConfig(
+    filename="app.log",
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 CONFIG_FILE = 'model_config.json'
-BASE_FILE = 'data/Haystack Europe 2024/Haystack EU 2024 - Aswath N Srinivasan：Leveraging User Behavior Insights to Enhance Search Relevance [0chun264PRQ]'
-TRANSCRIPT_FILE = f'{BASE_FILE}.en.vtt'
-DESCRIPTION_FILE = f'{BASE_FILE}.description'
-CLEAN_FILE = f'{BASE_FILE}.txt'
 TEMPLATE_FILE = 'prompts/raw_to_cleaner.txt'
 
 
@@ -97,16 +98,22 @@ def list_data_files(root_dir: str) -> List[str]:
     return valid_file_bases
 
 
-def main(template_file: str, description_file: str, transcript_file: str) -> str:
+def main(template_file: str, description_file: str, transcript_file: str, clean_file: str) -> str:
     lines = remove_duplicate_lines_from_captions(transcript_file)
     filled_prompt = fill_template(template_file, description_file, lines)
     token_estimate = count_tokens(filled_prompt)
     logging.info(f'Number of input tokens: {token_estimate}')
     clean_text = call_openai(filled_prompt)
-    with open(CLEAN_FILE, 'wt') as f:
+    with open(clean_file, 'wt') as f:
         f.write(clean_text)
     return clean_text
 
 
 if __name__ == '__main__':
-    main(TEMPLATE_FILE, DESCRIPTION_FILE, TRANSCRIPT_FILE)
+    # conferences = ['data/Haystack Europe 2024', 'data/Haystack US 2024']
+    conferences = ['data/Haystack US 2024']
+    for root in conferences:
+        base_file_list = list_data_files(root)
+        for base in base_file_list:
+            logging.info(f'{base}.en.vtt')
+            main(TEMPLATE_FILE, f'{base}.description', f'{base}.en.vtt', f'{base}.txt')
