@@ -1,0 +1,55 @@
+**Host:**  
+So I'm going to move swiftly on. Our first speaker is Roman Grebennikov. Roman, you're an old friend, and you've spoken at our other conferences. He describes himself as a principal ML engineer and an ex-startup CTO. You never remember the bio you submit later on, but he's been working on modern search and recommendation. Roman's always an entertaining speaker, so please put your hands together for him.
+
+**Roman Grebennikov:**  
+Hello, my name is Roman, and today we're going to speak about non-traditional ways of running search over block storage. Why would you ever do this? We'll talk about how we started by building a small prototype to prove that this idea is actually workable and ended up building a serverless search engine that you can actually use. A couple of words about myself: I'm coming from academia, through different areas of machine learning, and for the last many years, I've been working in eCommerce search. Originally at Findify, I focused on ranking and personalization, and currently at Delivery Hero, on food search through all these modern embeddings, LLMs, and related things. I'm also maintaining a couple of open-source projects related to ranking and personalization tasks.
+
+This talk is not going to be about embedding models, personalization, ranking, and LTR because I call this some sort of a conference hangover—when you get inspired by all these modern technologies and breakthroughs in ranking. Then you come back to work and start spinning the wheel of reality, operating your search engine, which actually generates the revenue that pays your salary. This picture started out as a joke, but it actually summarizes all the incidents I faced with operating search engines. It's not about a specific search engine; it's about the whole class of search engines we currently run in production.
+
+Search engines are considered special. They're more databases than anything, a stateful application that depends on permanent storage. They have problems with scaling up and down because you need to rebalance states if something goes wrong with your storage, which can lead to issues. But if you reflect back on backend applications, they tend to be simpler. You have your application and compute resources separate from your state. You can do things like modern rollbacks, blue-green deployments, A/B tests, scale-ups, and scale-downs more easily because the state isn't managed by you. This convenience makes operations and modifications much easier.
+
+However, the issue with current search engines is that this complexity extends beyond the search engine itself, into your search and indexing pipeline. So if you change something in your index, you also need to update this pipeline, which increases the overall complexity of running your search engine. If I were a search engine vendor, I would embrace complexity because it helps sell managed services. But since I'm more of an operator, I'm trying to reduce complexity to make my life easier.
+
+You might wonder if search engines can be stateless, more like backend applications and less like databases. There are several projects already taking this angle, like Elasticsearch, which is a Yelp search engine, and it's not very popular. It’s implemented on top of Lucene with real-time replication. OpenSearch offers segment replication over remote storage, not fully stateless, but a step towards decoupling. In other areas, there’s Quikwit, a search engine for logs and telemetry, and Turbopuffy, a vector search engine that runs over block storage.
+
+The strategy behind these engines is to decouple search, compute, and storage, leading to easier operations and cheaper costs. In various industries, Amazon's talk on 'Buzzwords' and similar works from Uber and Doordash point towards this decoupling trend where indexers update segments on S3, and searchers pick those segments up. Even at my past company, we moved from Elasticsearch to Lucene, inspired by these insights.
+
+But, are these engines open-source? No. So companies must often create their own versions. That's what led to Nixiesearch. There seemed to be a demand, so we thought: "Why not write our own search engine?" It started as a proof of concept, running Lucene over block storage, and evolved into something more. If you look into Lucene and block storage, you might find a blog post by Shay Banon, creator of Elasticsearch, pondering using Lucene over S3—this was about 15 years ago. While unfinished, it laid the groundwork for considering non-traditional block storage.
+
+Lucene was tricky to extend, as it originally worked with block storage locally, not remotely, like S3, which has higher latency. Latency tests showed it's about 10 to 20 milliseconds for Amazon's S3. We approached this by caching locally, reducing repeat fetch times and allowing for easier scaling of stateless nodes across multiple services.
+
+However, initial request times were high due to necessary data access across S3, so we implemented a caching proxy between Lucene and block storage. Two types of S3 endpoints were considered, traditional and S3 Express. The latter offers faster response times at reduced redundancy. Ultimately, this improved performance significantly, yet initial latency remains a challenge for vector searches due to inherent complexities in graph traversal.
+
+In practice, configuration files make index creation simple and integrate CICD system checks to ensure compatibility with existing datasets, providing a backend-like deployment. This segmentation allows for consistent index updates without service disruption, using a decoupled approach of indexing separately from runtime search traffic, potentially saving on costs by not running indexers continuously. We support indexing remotely with auto updates, providing a seamless search experience, with familiar interfaces for queries and dataset management, while allowing for local inferencing.
+
+Some limitations include the absence of sharding due to stateless design, and indexing large datasets may take longer initially. Further improvements aim to expand model incorporation directly into search algorithms. Ideally, containerized environments allow for seamless local setups with minimal dependencies, reinforcing decoupling for broader industry adaptability.
+
+**Audience Member 1:**  
+Yes, thanks for the talk. Looks like a cool project. I kind of understand the sharding thing, but I think some kind of partitioning would still be nice. Let's say if you would have a filter and push that down to the fetching, right? Where you have a Hadoop HDFS style partitioning, did you consider this for sharding and partitioning?
+
+**Roman Grebennikov:**  
+Yes, we do consider it, but if you're stateless, how would your node A reach node B or even know if it exists? There needs to be some form of communication between them, maybe through S3. Still, that introduces state, which is what we're trying to avoid. Shards need coordination, usually through a master node to decide ownership, which complicates setup. Technically, you could use S3’s compare-and-swap features, but it feels fragile, and personally, I've found most cases don't require it. If you have vast datasets, maybe, but for practical user-facing search, it's not typically needed.
+
+**Audience Member 2:**  
+I think some partitioning would help when you apply filters, more of an actual data fetching problem rather than state management. You could have separate indices for those partitions.
+
+**Roman Grebennikov:**  
+This might work, but it could require structural changes at the index level. Partitioned datasets would benefit from better IO performance. In cases like Findify, more active tenants can have allocated resources, implicitly partitioning based on load. It can be hard to balance fairness with performance though.
+
+**Audience Member 3:**  
+You mentioned continued latency issues on reads due to design leaning towards a read-through cache rather than prefetching everything. Can you elaborate on this?
+
+**Roman Grebennikov:**  
+Our cache is indeed read-through, so initial reads are slower until caching kicks in. We're aiming for improvements here, possibly through IO-level parallel prefetching. When done locally, the latency is negligible for most reads, but S3’s initial latency transport remains a challenge without prefetch invocations.
+
+**Audience Member 4:**  
+Is Nixiesearch meant to be run as a Lambda, or on EC2?
+
+**Roman Grebennikov:**  
+Technically, it could work as a Lambda, though startup times involving index fetching might be prohibitive. It can definitely be run on EC2, which would better handle continuous workloads. For ingestion, batch jobs may suffice depending on the latency requirements of your indexing operation.
+
+**Audience Member 5:**  
+How do you handle cache invalidation with a constantly updating index?
+
+**Roman Grebennikov:**  
+Lucene inherently handles cache invalidation segment-wise; only modified segments are updated, hence minimizing disruption across cached search results. Apart from this, there's nothing external as Lucene's mechanisms are already quite efficient.

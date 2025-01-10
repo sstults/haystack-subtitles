@@ -1,0 +1,37 @@
+**Host:**  
+So, I know a lot of us, or at least, well, some of us, are trying to improve product search using Machine Learning and Large Language Models, and so is Amazon. In our last talk today, Hajer and Praveen are discussing how Amazon is using LLMs and ML to improve product search. Thank you.
+
+**Hajer Bouafif (Solutions Architect):**  
+Hi everyone, thanks for staying around. I think this is the last session, but there's good news—there are vouchers for you for the drinks later, so stay with us. I think throughout the day we've seen that Machine Learning and LLMs are integrating the whole search pipeline or search lifecycle, and the next generation product search is a reality at this point. Now, in this session, we'll cover how to build these integrative Machine Learning LLMs into your search engine. In our use case, we are using OpenSearch as the search engine. My name is Hajer Bouafif, and I am a Solutions Architect at AWS focusing on OpenSearch, and with me today is Praveen.
+
+**Praveen Mohan Prasad (Search Specialist):**  
+Hello everyone, myself Praveen Mohan Prasad. I'm an Analytics Specialist with AWS for almost three and a half years. I'm focusing on Amazon OpenSearch Service operational excellence with customers. Thanks, Hajer.
+
+**Hajer Bouafif:**  
+Alright, let's start with the basics. What is the lifecycle of a search in general? We start with data ingestion, right, in order to be able to search that data. For the data ingestion side, we prepare the data by enriching it using Natural Language Processing techniques and Computer Vision techniques to capture information from images, for example, and then put it in the right format to be able to store it into your search engine. In this case, as we mentioned, it is OpenSearch. Now, we have a search query coming in. The search query will go through the same pre-processing steps. First, we need to understand the intention of the user on the web application.
+
+Once we display the results, we would like to understand if these results are really relevant to our users that are using the web application. So, we capture the user signals and feed these into a post-processing step to train our ranking model. Everyone, I think today we spoke about ranking, and we use that also as a feedback loop to provide this information as contextual information for the next queries.
+
+Now, in this session, Praveen and I will go through each step and cover how you can build these integrations with OpenSearch. If somehow you are not aware of OpenSearch and missed the first session, it is an open-source project that recently joined the Linux Foundation. From the Machine Learning perspective and LLMs, they are usually either self-hosted or managed services in whatever cloud you are using. These ML models can generate embeddings, be used for NLP processing, computer vision, and you have the LLMs. At ingestion time, wherever you have text or images, you would process this data outside of your search engine, get the results, and store them in your search engine.
+
+Now, with OpenSearch, you can use an ingest pipeline to get those documents in raw format and use the machine learning services or your LLM via a machine learning connector and processors available, like chunking processor, embed generation processor, enrichment processor using your own machine learning model. This will be invoked by the ingest pipeline to pre-process the data and store it into your OpenSearch. 
+
+**Praveen Mohan Prasad:**  
+So, as Hajer explained, we move on to the retrieval phase where there are two categories — Sparse Retrieval and Dense Retrieval. With Sparse Retrieval, we have algorithms such as BM25 or term frequency-inverse document frequency, along with neural sparse search which is a machine learning way of doing lexical search. Dense retrieval uses the K-nearest neighbor approach or approximate nearest neighbor approach, converting documents and queries into vector representations. 
+
+For the hybrid search, this ensemble combines multiple retrieval techniques to score separately, normalize, and then reorder based on combined scores. One popular use case is conversational search for building chatbots, where Retriever Augmented Generative models are employed. We can cover more about OpenSearch implementations for hybrid and conversational searches later, including conversational search with the search pipeline and how we can efficiently manage embeddings.
+
+**Audience Member:**  
+Thank you for a good talk. You showed us an architecture of the system which is quite standard with query understanding, retrieval, and re-ranking. I'm wondering how much of this experiment is feeding into the dog food for Ubi?
+
+**Praveen Mohan Prasad:**  
+We’re developing ways to dynamically select retriever types. For instance, with Learning to Boost models, you dynamically select retriever types. We’d use historical information, weights, and other metrics for each query type to inform model predictions. 
+
+**Audience Member:**  
+Thanks for clarifying that. How might caching impact the reduction in latency, particularly with approximations?
+
+**Praveen Mohan Prasad:**  
+Certainly. By caching popular queries with OpenSearch, we significantly reduce LLM invocation costs and latency, optimizing performance. Experimentation with threshold values is crucial to find potential cache-matching queries, balancing cost and accuracy.
+
+**Host:**  
+Thank you, Hajer and Praveen. We are out of time, but feel free to approach them directly with any more questions. Thank you everyone.

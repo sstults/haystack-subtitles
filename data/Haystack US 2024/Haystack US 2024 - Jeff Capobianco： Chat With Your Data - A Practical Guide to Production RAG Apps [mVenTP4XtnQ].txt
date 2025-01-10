@@ -1,0 +1,127 @@
+**Host:**  
+Welcome to the first talk in the Small Theater, Theater 7. I'm pleased to introduce Jeff Capobianco from Moody's, who has so much to tell us; he needs all the minutes. Jeff is the Product Manager of Search for Moodys.com.
+
+**Jeff Capobianco:**  
+Thank you, it's very exciting to be here because Haystack has been a big inspiration for me over the past few years. More recently, I've had the honor of contributing to the Moody's Research Assistant, which is a chat application for financial analysis. It's been an amazing collaboration of multiple teams working at a very fast pace. Though it's cliché, we like to say that it takes a village, so we'll help you lay out a plan to create a transformational retrieval-augmented generation application in a short period of time.
+
+Let's start with a story. Our story at Moody's begins with a very talented and driven AI whisperer by the name of Sahil Hosani. Sahil worked late into the night building a chat application that accepts freeform questions and responds using Moody's data. Before long, both leadership and investors became very excited about this easy-to-use delightful experience, and more importantly, its time-saving implications for our users. So the Search Squad joined forces with the Research Assistance Squad to work on scalability and iterating on answer quality.
+
+Today, the Moody's Research Assistant is live in production with a growing amount of traffic and a growing number of paid subscribers. It can answer a wide range of questions about organizations, their credit ratings, financial data, and broad-based sector questions. It provides citations, relevant charts, and suggests follow-up questions to guide your research journey.
+
+We'll share some of the knowledge we gathered along the way. Some of these lessons came from quick wins, and others from the benefit of hindsight. Hopefully, we will help you avoid learning some lessons the hard way. We'll go over this in four main sections. First, nobody likes a solution in search of a problem, so we'll give you some tools to explain to your stakeholders the value of RAG. Then we'll get on the same page about what a system like this may look like and discuss the building blocks to which we'll refer back throughout the talk. Part three will be the main portion where we talk about setting a foundation, the things you should invest in early on to iterate quickly on top. Lastly, we will briefly discuss areas you can explore next to build on top of that foundation.
+
+So why would you build a retrieval-augmented generation app? CEOs really want AI, and it's up to us to figure out how to make it work. There's a Deloitte study I reference in the appendix that shows eight out of ten leaders expect AI to transform their organization within three years. RAG can be a wonderful bridge between that desire and real value for your users and business. Here, you can see our credit analyst with a stack of relevant data we provided from Moody's. Instead of reading through this wide swath of data and synthesizing a response for their needs, the Research Assistant does that for them and automates another step of their journey.
+
+Especially in our business-to-business setting, time savings is the real product, and research assist users save up to 27% of their time performing financial analysis, freeing them up to do higher-value tasks. You get that time savings through this easy-to-use, tailored chat experience rooted in our factual, trusted data. We enable this by getting the best of both worlds between a search engine and a large language model.
+
+What do we mean by the best of both worlds? Well, search engines have a well-studied problem of getting up-to-date information indexed into your system as it's published, and that data probably sets your business apart. With an LLM by itself, it's very challenging to train new data and new information into that model. It takes money for computing, time to complete, and a high level of expertise to do it effectively. Even once you train it with that data, it can still give responses outside of those facts; it can still hallucinate.
+
+In some applications, these generated musings from large language models can be powerful. If you think of things like image generation, creative writing, or brainstorming, you wouldn't even call this hallucination; it's a great feature of the LLM. But for us, we need to provide trusted data from industry experts, so AI really needs to stick to the facts we provide.
+
+Sometimes when I'm interacting with an LLM alone, it makes me think of trouble I got into when I was younger. I was a confident kid, and when I was asked a question I didn't know the answer to, instead of saying, "I don't know," I'd say, "This sounds plausible, maybe it's right," and give a confident answer. People often believed me, and before long, I'd get into trouble for it. You can get into the same trouble if you try to train a model and send it out into the world, representing your company.
+
+There have been cases in the airline industry, automotive retail, where there have been real financial and reputational damage because chatbots went off script. Mitigating and preventing hallucination is a key component of RAG.
+
+Returning to the search engines, as we saw in the image, users need to synthesize a response from many sources. For those of us building the search engines, getting the full user context can be challenging. You need to master many techniques and wrangle a lot of data. LLMs are very context-aware and can answer specific questions out of the box. By retrieving data from a search engine and then generating a response with an LLM, we aim to get all these desired behaviors and leave behind some drawbacks. We get some new benefits as well. 
+
+We spoke about the synthesis element and can also suggest follow-up questions that you know you have the answer to, generated from your data. But it comes with new challenges as well. These systems have many moving parts that all need to work in concert, and measuring that ensemble can be difficult. We'll discuss that in detail.
+
+I'm sure there are many use cases for RAG, but from our perspective, it's very focused on freeing up knowledge workers for more high-value tasks. If your business checks these boxes, there's probably a good case for RAG for you.
+
+How do you actually make a system like this work? We'll go over some of the building blocks. Starting with our chat interface, which we saw in the screen recording, a user can enter any question or prompt they'd like. The first step in the journey is this intent detection layer, denoted in green for opportunities to use large language models. This layer can make your search engine job easier, filtering the space, and routing different kinds of questions to the best-suited data sources. It will send queries to your search engine, structured data databases, and APIs. This little trio in the bottom left makes up the retrieval portion, the R in RAG. It needs to handle long queries and get relevant chunks of data that fit into the large language model's context window, the max number of tokens it can accept in a prompt. Once you've retrieved your relevant chunks, bundle them into a prompt, send them to a large language model in this response generation step, like GPT or Claude, and stream your response back to the user. 
+
+Everyone's on board with the value proposition and high-level architecture. Where should you focus first? We'll talk about laying a foundation for fast iteration and some upfront investments that can save you time later. We'll talk about four cornerstones to address early. One, understanding cost—the most expensive software to run at your company. Two, measuring this ensemble of inputs and outputs to avoid a step forward, step back relevance tuning experience. Three, detecting intent, which has been crucial to our success at Moody's. LLMs unlock big opportunities in this area. Fourth, preventing hallucinations, so you gain users' trust and leverage your differentiating data.
+
+Understanding costs is important. You want to avoid realizing your project's not financially sustainable for your business or have colleagues who react that an AI application is too expensive. You can do estimations to help them understand. You might have new costs in your stack if you don't have an app like this. The big one is large language model providers, companies like OpenAI and Anthropic. If you're not doing dense vector search today, you don't have to for a RAG app, but if you want to add that, creating embeddings, those numerical representations of your data, is a new cost as well. APIs like GPT and Claude charge per token and have tokenizers. OpenAI has a tokenizer tool to paste data prompts and responses to understand how many tokens they contain, which is nice to help you gain intuition. The tokens you send in a prompt are priced differently than those coming back in generation. 
+
+Let's look at an example to get some numbers. You'll need to look at your use case and data to pick token volume estimates. Let's say you use a 4,000-token prompt containing your instructions to the model, retrieved chunks, and user's question, and expect around 300 tokens back. That's our box on the right, the response generation. You probably have a smaller intent detection prompt, say 300 tokens, and gives back a 30-token JSON. Sum those up and look at different providers and models they offer. You can see how larger, smarter models like Claude 3 Opus or GPT-4 Turbo cost between $40 and $60 every 1,000 requests using estimated token volumes. A smaller, faster model like ChatGPT or 3.5 Turbo costs $1 to $2, so there's a big difference. Spend time experimenting to find the smallest, fastest, cheapest model with the accuracy you need. Mix and match: a large smart model for final generation, a small fast one for intent detection. Leave headroom in estimates for requests due to development, testing, more tokens for a complex intent detection layer.
+
+We spoke about vector creation, embeddings in vectors. Again, it's not a must, but helpful for long question-like queries and out-of-vocabulary words. Run into costs when rewriting a large volume of data into your vector database. Set expectations with your business around costs to rewrite everything. What's the minimum valuable data set to make searchable? If you change model embeddings or data chunking, you rewrite everything, the biggest cost. Third-party providers like Cohere or OpenAI have per-token pricing, less expensive than generation, but if flexible, tools like SageMaker allow you to host or train your own model. It's flexible for latency needs, committed to making data searchable within 15 minutes of publication, so guarantee throughput, experimenting with serverless batch transform and real-time options from SageMaker.
+
+You understand estimated costs based on data. It's time to start building. The second cornerstone is measurement. If I could go back, I'd start this observability earlier than we did, and we started it early. If search relevance is a game of whack-a-mole, RAG is 3D chess of whack-a-mole. Many moving pieces in concert, enabling rapid experimentation with this approach to iterate faster, we'll talk about windows into your flow to make improvements without regression.
+
+First, end to end. Measure the relevance of these pairs, so you have crucial checkpoint production, but when problems arise, you'll have more questions than answers. Measure intermediary steps along the circuit. Next step is that intent detection layer with a number of steps; measure each one individually and as an ensemble. Next, look at the full retrieval phase. Many of us understand measuring search engine isolation, but it's not sufficient. You could measure queries different from production, miss preprocessing steps, or optimize queries routed elsewhere. Full ensemble tested together, input from the user, retrieved chunks, crucial, helps teams iterate faster understanding layer interactions, accepting changes for fast parallel experimentation.
+
+Twist on query-doc pair measurement we know. Large language models can't scroll or paginate; have one data chunk in their prompt. Some abilities to discern relevance, goal to fill context window with relevant chunks. Precision at K is a great primary metric but avoids gaming one stat, getting a holistic system view. Ranking-aware stats like ERR are valuable too. End of context window, swap good and bad results, impacts final response. Finally, look at how faithful generated response from LLM stays to retrieved chunks. Your proprietary data is more desired than foundation model data with low entry barriers.
+
+There are tools to measure these systems. Likely to get new LinkedIn messages at the hotel about ones that came out today. LangSmith evaluation tool has columns on steps, overall score, and retrieved data quality. Whatever tool you choose runs batches of queries, seeing performance at different stages. Code working early with your test bench saves time and displays different improvement stages. It's a data-hungry problem, many steps need annotations. Not an expert in financial analysis or credit products, need to support that domain. Pre-search engine wasn't optimized for question answering, not much implicit data. Work with experts, expensive time, and other deadlines. When getting time, long-answer judgment is taxing and time-consuming more than a keyword in a title, and since chunking data, a large number of pair annotations are needed. Large language model as proxy saves time, valuable when the business understands risks.
+
+LangSmith Tool screenshot shows community hub feature, custom prompts for domains, and relevant scoring in final prompt increases production tokens. A super simple design so not to confuse the main task, not relied for granular scoring, however a coarse indicator of classes of problems going poorly, even if users don't give explicit feedback, easy to incorporate into logs versus offline process.
+
+If I get another show of hands, who is skeptical of trusting LLMs to say job improvements or decreases? Less than expected, some believers. Was paranoid, unsure if understanding financial language and task time savings worth accuracy risk. Conducted a time exercise with experts providing annotations, answering "does AI agree with experts equally well among each other," using stats like Cohen's Kappa to measure. One of the best ways is plotting out data. Specific query-chunk relevance judgment, three labels bad, fair, good, and red ones our prompts, vertical number of annotations for each category. AI is more likely to give so-so answers than experts, improves agreement after data regrouping.
+
+This was using a strict approach: bad or fair combined, only care about improving good chunks—our primary objection—loosing info of other category shifts. Better trust in automated offline system but if data doesn't reach agreement with experts and LLM, a few prompt engineering tricks help. The biggest change ensuring prompt explains before scores. Explanation first uses a chain of thought, providing logic and step synthesis, and prompt changes are needed. Few-shot examples with expert explanations, similar instructions to hints as the model, and crucial elements are set, diagnose issues, measure improvements, and system pieces needing work identified.
+
+Some papers gloss over this intent detection component, but it's crucial to Moody's Research Assistant success. LLMs make techniques easier than ever; full-text search is challenging, but we make search engine jobs easy with commonplace embedding models, no fine-tuning off the shelf. Working with colleagues on answers finds ownership in data encoded into prompts.
+
+Example: we need to support users asking an organization's credit rating changes and reasons. Three queries to retrieve this: corpus of expert research, do K&N search in open search with open ID filter, or a SQL query to ratings database adding where clause. For options 1, 2, or 3, three’s most reliable gets ratings data. Where clause is more predictable than full-text search but misses expert context users want.
+
+Combine data sources for AI experience. Structuring queries: shout-out to a favorite from Haystack 2022. Check out Bojan Dobajic's AI-driven search on YouTube, impressed with Nextdoor's architecture and incorporating context with query-expansion, entity recognition, classification. Techniques are powerful but challenging. Wrangle data to train models and deploy production, LLMs leapfrog tasks with accessible prompt engineering, less expertise training necessary. Financially costlier with LLM latency than purpose-built systems, rapidly marketable setting benchmarks.
+
+Baking technology early in brought success to Moody's. Magical AI experience for research assistant deployment fast. Fourth cornerstone is guarding against hallucinations; users need factual financial information, not generated content. Trust is crucial for factual need. Include "I don't know" prompts. Few articles and posts online repeat "I don't know" phrases, needing explicit instruction. Example from OpenAI shows caution; ensure creative heavy-handedness keeps responses faithful.
+
+Comprehensive feedback takes no risk at all; accepts feedback directly from creators, sales, and experts, encoded in detection prompts. Log all inputs and outputs to understand what goes wrong and prevents wild-goose chases. Prioritize and iterate without overfitting internal users due to unsuspected questions from subscribers.
+
+Explore new areas only once foundation set. Fine-tuning not necessary if effective intent detection system, usable feedback gathering for system development. On Moody's Research Assistant progressing list, optimistic LLMs choose relevant chunk list like a human.
+
+Images generated with Microsoft's Copilot Designer tool, studies resources linked here. Thank you for listening. Any questions?
+
+**Audience Member:**  
+Welcome, thank you Jeff. Thank you, Jeff. Let's try that one more time. For those playing in the Zoom version, please type your questions in the chat. I'll move through the audience quickly with the microphone.
+
+**Audience Member 1:**  
+Thank you, great talk. Really informative. I have lots of questions, I'll choose two for primetime. The first is about Precision at K over recall or ERR. We've found recall works well with our customers here at [company not specified]. Curious as to why Precision is your use case?
+
+**Jeff Capobianco:**  
+Sure, it's crucial to have one primary objective for improvement measurement, and Precision at K is important due to limited fill space—each chunk needs quality results. Though, don't ignore recall; it's more secondary.
+
+**Audience Member 2:**  
+From Alexandra Fenberg: How do you deal with latencies? Is the system too slow for users?
+
+**Jeff Capobianco:**  
+It's less speedy than traditional search, and we have that for quick information needs. We add animations during calculation, stream response to users. Smaller, faster LLM models like ChatGPT help.
+
+**Audience Member 3:**  
+Great talk, curious about the engineering behind the project? When generating vectors for RAG, what's used to generate and index them? Sometimes creating vectors is longest in projects.
+
+**Jeff Capobianco:**  
+Good question. Open-source model on AWS SageMaker to host, minimizing the hosting burden. Important to define early expectations with small data sets due to time and cost of rewriting model chunking.
+
+**Audience Member 4:**  
+From Hob Shidu: How do you prevent overfitting to internal users?
+
+**Jeff Capobianco:**  
+Time-limit your beta internally, work with business experts confirming questions real users might ask. Get external beta users involved as soon as possible for true use cases.
+
+**Audience Member 5:**  
+How do you prompt for query intent? Do you use functions or language?
+
+**Jeff Capobianco:**  
+Good question, close to secret sauce! Generally, important input info to other systems, plain language, JSON responses.
+
+**Audience Member 6:**  
+Great talk, about combining structured data with search engines? Is it for every question? How's it done?
+
+**Jeff Capobianco:**  
+Good question. Important data piece extraction applied to search engines, APIs, databases. Better question classification saves latency, but may impact recall.
+
+**Audience Member 7:**  
+Using LLM for offline relevance judgment—would anything be added for online use? Relating LLM to real-time user relevance?
+
+**Jeff Capobianco:**  
+Yes, we do, yet simple. Offline process for fine-grained relevance, online reflects improving or worsening alert signals in real time.
+
+**Audience Member 8:**  
+Quick follow-up: Involves retrieval of facet, classification before intent?
+
+**Jeff Capobianco:**  
+Yes, crucial for narrowing filtering data—isolation helps filter questions accurately.
+
+**Audience Member 9:**  
+Thank you, about response generation and using different LLMs. Do you test with complex queries on more expensive models and simple ones on cheaper options?
+
+**Jeff Capobianco:**  
+Yes, we've done that for different steps; big speed and cost implications. Consistency in final response generation avoids jarring experiences and remains cautious about changing models.
+
+**Host:**  
+Thank you, Jeff. Thank you, everyone. We have 15 minutes until the next talk. Thank you all.

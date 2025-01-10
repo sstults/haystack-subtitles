@@ -1,0 +1,7 @@
+An internally developed Human Relevance Testing Framework was successfully modified to support Subject Matter Expert testing of generative AI search results and summaries. These extensions to the existing Search Testing Framework have resulted in fast and frequent evaluation and testing of large, diverse corpora for search and summarization functions.
+
+This paper will discuss the modification of the framework from traditional search Human Relevance Testing methods to generative AI, the testing process, the metrics created in support of generative AI, and the outputs of the methodology. Generative search and summarization methods will be discussed. In addition, various other potential testing use cases based on this methodology will be covered, including comparison and regression methods and alternate product extensions, issues, and metrics.
+
+Doug Rosenoff is the Director of Global Search Test Tools at Lexis Nexis including Search Test Framework and the A/B Experiment apps. He has worked for 30 years in electronic publishing and research at West Publishing, Thomson Reuters, and at LexisNexis, with several domestic and international patents in Search Algorithms and Automatic Linking. 
+
+Haystack US 2024 brought to you by OpenSource Connections, Experts in Search & AI, offering consulting, training and specialist staffing - talk to us about your search & AI project at https://www.opensourceconnections.com

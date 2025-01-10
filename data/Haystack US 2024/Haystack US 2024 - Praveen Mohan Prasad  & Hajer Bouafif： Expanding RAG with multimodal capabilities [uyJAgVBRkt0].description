@@ -1,0 +1,8 @@
+RAG workflows predominantly rely on retrieved text sources, as most Language Models (LLMs) are proficient in understanding only language. However, a substantial portion of unstructured data contains multimodal elements such as text, tables, and images. Focusing solely on text compromises the retrieval process in RAG. In this session, we’ll explore the utilization of LLMs and multimodal embeddings to expand RAG for multimodal retrieval and generation. A live demonstration will illustrate how a PDF document is processed in a vector database, extracting content from images, tables, and text; the retriever employs multimodal search and the response is enriched using a LLM. This approach ensures the inclusion of multimodal content in both the ingestion and final response generation phases.
+
+Praveen Mohan Prasad is a search specialist with data science expertise who actively researches and experiments on using Machine Learning to improve search relevance. Praveen advices clients to implement and operationalise strategies to improve search experience.
+
+
+Hajer Bouafif is a solutions architect in Data Analytics and search with a background in Big Data engineering. Hajer provides organizations with best practices and well-architected reviews to build large-scale Machine Learning search solutions. 
+
+Haystack US 2024 brought to you by OpenSource Connections, Experts in Search & AI, offering consulting, training and specialist staffing - talk to us about your search & AI project at https://www.opensourceconnections.com .

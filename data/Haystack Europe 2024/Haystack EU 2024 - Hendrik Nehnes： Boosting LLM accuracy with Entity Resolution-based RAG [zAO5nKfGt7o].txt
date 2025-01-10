@@ -1,0 +1,40 @@
+**Host:**  
+Welcome, everyone. Up next, we have Hendrik, co-founder and CPO of Tilores, who will be presenting on using an entity resolution system with large language models. Thank you for being here, Hendrik.
+
+**Hendrik:**  
+Yes, thank you for having me today. In this talk, I'll present how we can integrate traditional systems with newer technologies for improved performance at reduced effort. Considering projections that over 80% of enterprises will use generative AI APIs or deploy generative AI-enabled applications by 2026, it's crucial that we address data privacy and security concerns, especially when dealing with personal and company data. We constantly talk about GDPR, and customers often wonder about the implications of cloud storage.
+
+Today, I'll discuss Entity RAG, an approach that uses real-time entity resolution to enhance LLMs with accurate, unified data about entities like customers and companies. I will show a use case involving an insurance company utilizing an LLM-powered chatbot for quick, reliable contract queries. 
+
+We faced challenges like language privacy, as our setup involved multiple countries where English was a common language, but some customers spoke other languages. The LLMs needed to be fed up-to-date internal information, which required a system capable of real-time entity resolution.
+
+Entity resolution is crucial because, in enterprises, customer data often comes from different sources. A fragmented view could mean various departments view only parts of a customer's profile, which leads to compliance risks and inefficient communication strategies. For instance, a single customer might have multiple profiles across systems, complicating marketing and data privacy compliance.
+
+I'll also discuss scaling challenges related to speed and cost when handling data at scale. As enterprises grow, managing and processing millions of records in real time becomes increasingly complex. I'll demonstrate how our system addresses these challenges with the latest technology, maintaining data accuracy and efficiency.
+
+Another important part of our setup is the architecture utilizing components like data ingestion layers, data standardization, and matching engines. We combine this with systems like Amazon Services for scalability, leveraging vector databases and graph databases to maintain identity graphs efficiently.
+
+I'll conclude by discussing how combining LLMs with entity resolution systems allows for immediate, accurate data access, propelling enterprises forward in their AI journey. Tomorrow, we have a product launch, and I'd love your support. Thank you for your attention.
+
+**Host:**  
+Thank you, Hendrik. That was insightful. Let’s move on to some questions.
+
+**Audience Member 1:**  
+Can you elaborate on how the entity resolution system links different data representations for a unified view?
+
+**Hendrik:**  
+Yes, certainly. The system links different data representations by clustering similar data points, such as addresses and contact details, to create a cohesive profile. This unified view resolves discrepancies across data sources, giving a clear understanding of customer data.
+
+**Audience Member 2:**  
+How do you handle scalability when integrating these systems with real-time data processing?
+
+**Hendrik:**  
+Scalability is achieved by optimizing our infrastructure with efficient data ingestion and processing techniques. We use components like graph databases and integration with vector databases to handle large volumes of data, maintaining quick response times through distributed computing and advanced data architectures.
+
+**Audience Member 3:**  
+Given GDPR and data privacy laws, how do you ensure compliance with sensitive data?
+
+**Hendrik:**  
+Privacy compliance is managed by controlling data flow rigorously and ensuring our systems adhere to strict data protection protocols. We implement secure, anonymized data processing where necessary, and we continuously update our practices in line with evolving regulations.
+
+Thank you everyone for your questions, and I hope you'll join us for the product launch tomorrow!

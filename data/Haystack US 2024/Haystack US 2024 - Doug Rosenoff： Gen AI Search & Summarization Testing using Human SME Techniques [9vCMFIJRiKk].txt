@@ -1,0 +1,69 @@
+**Host:**  
+Okay, welcome back, everyone. I'm very happy to welcome an old friend of Haystack, Doug Rosenoff of Lexis Nexis, where he's the Director of Global Search Test Tools, including the Search Test Framework and the A/B Experiment applications. And he's worked for 30 years in electronic publishing and research, holding several patents in search. He's going to be talking about generative AI search and summarization testing using human relevance testing techniques.  
+
+---
+
+**Doug Rosenoff:**  
+Good morning, good morning. First off, I'm sorry if there's glare coming back at you off my forehead. I can't really do much about that, but forgive me, and I'll try to move around so it's not obscuring you all the time. I work for Lexis Nexis, and I'm here representing a team today that's been working on this problem of evaluating generative AI. Our first step into that broad and fairly deep pool was using subject matter expert techniques. That team's name is Jupiter, so you'll see lots of images coming from NASA today. To acquaint you with Lexis Nexis, it's part of RELX Corporation. You might have heard of Reed Elsevier, which is part of RELX, specializing in scientific publication. Lexis Nexis specializes in legal news and information, as well as general news.  
+
+We operate internationally and work not just in publishing but also in technology areas such as productivity analytics, management, and marketing for legal professionals. At the core of this, and continuing to be, are research services for the legal professionals. Lexis takes very seriously the advancement of the rule of law around the world. Therefore, when we build tools, even at this level, we think about internationalizing them for different languages and legal systems.  
+
+We've been involved in online publishing since 1973, and we started adopting machine learning and AI in 2019. To give you a quick overview of our content, there is approximately 3.8 petabytes on the spindle, and we add a significant fraction of a Library of Congress worth of material every month. This includes content we publish, news articles, and information from various government agencies worldwide.  
+
+The goal of the generative AI effort at Lexis Nexis was to provide customers with trustworthy tools that simplify their work processes and improve their efficiencies. Lawyers tend not to be the latest technology consumers, but anything that improves their efficiency in their hourly billing model is significant. Generative AI is a positive tool in this way. We divided the problem into four areas: conversational search, editorial content summarization, customer document upload and summarization, and document drafting.  
+
+I'm only going to talk about summarization and search today. When customers search through our corpora, they're often looking for very specific answers, sometimes down to a document reference. We get all sorts of questions, from narrowly focused Boolean searches to broad natural language queries. The problem is complex, and filters, while narrow, can be helpful.  
+
+Editorial content summarization is important. Customers aren't interested in reading every word, especially when looking at dense legal documents. Summarization for us is a revenue issue, as customers want accurate and trustworthy insights without reading through reams of documentation. One of the main things our customers want to do is have accurate summarization, especially when dealing with large volumes of documentation.  
+
+In terms of definitions, we use a human relevance testing technique where subject matter experts rate within a human relevance testing process. We use the term 'ask' as the equivalence of search in generative AI. We differentiate between system prompts, crafted to describe features and expectations for the user, and user prompts, analogous to queries in typical search.  
+
+This process underlies everything we do regarding human relevance testing. You start with a testing framework, inputs, a corpus set, a rating rubric for how we want data rated, parameters, inputs and filters, generating an answer process set, and then it flows into a series of rating pages. Then the combination of ratings allows us to analyze and correlate trends and anomalies finally. This is the same meta-process for generative AI evaluations, which means we don't have to reinvent the wheel when evaluating human results.  
+
+For initial testing goals, we have multiple metrics to track. AI results are difficult to rate, and one of the advantages is agreeing on a set of metrics that can be used company-wide. Optimizing across varying corpora is a real issue with multiple countries involved. Comparisons, result regression, editorial summaries, and the generation of AI-based content are crucial.  
+
+In conclusion, ratings take much longer and are more complex. Comparing AI results with traditional evaluations involves considering all of these intricate factors. Ultimately, this allows for a better understanding of improvements and advancements to customer tools in a law-based, content-rich environment.
+
+**Q&A Session:**
+
+**Host:**  
+Thank you so much, Doug, for that insightful presentation. We've got time for some questions from the room. I see someone I recognize at the back here, Mr. Eric Pugh.
+
+**Audience Member (Eric Pugh):**  
+Glad I got in quick. Now that you've added these more, I don't know, comprehensive rating factors, right, have you experimented with having other types of raters focus on specific rating attributes like language structure? Can you break up that problem, or does every raider have to evaluate all seven factors?
+
+**Doug Rosenoff:**  
+That's a really good question, and to be honest, it’s not something we've considered. For the most part, we assign a document or a summary to a raider for consistency in results, and we give advice on what a rubric is. However, there’s no reason why we couldn't have someone look at fluency separately from other aspects. Also, going through and checking citations with a script is another optimization we could do, but haven’t yet. Great question.
+
+**Host:**  
+We also have a question from our online audience. Todd Peters asks, "A hypothesis: the more you use an SME for this, the less of an SME they become over time. Can you talk about team dynamics, burnout, and reasonable scale throughput if a company wanted to start this process from scratch?"
+
+**Doug Rosenoff:**  
+That's a good question and not a trivial one. Our raters have other roles within the company, so they might spend a limited number of hours per week on this, maintaining their expertise in their field. This helps mitigate burnout. In terms of team dynamics, it's pretty good because we don’t enforce strict completion targets. Instead, raters can choose how much they want to contribute.
+
+**Audience Member:**  
+Thanks for the great talk. My question is about measuring accuracy within document context. Given the dense and lengthy nature of legal documents, how do you evaluate whether the summarized piece is accurate within the broader context?
+
+**Doug Rosenoff:**  
+Good question. We rely on our legal experts to use common sense and the tools available to them such as hyperlinking back to original documents to ensure accuracy. Raiders can check the details against source materials and make thorough comparisons as needed.
+
+**Audience Member:**  
+I was very interested in your seven advanced metrics. How did you decide on those seven, and have some proved more valuable than others?
+
+**Doug Rosenoff:**  
+These seven metrics emerged from extended company-wide discussions. Some, like fluency and hallucinations, are fairly obvious, while others, like utility, are more aimed at summarization purposes. We use both a simple and a complex metric to accommodate varying evaluation needs. Although this is our first year of using them, we're not seeing much demand for additional metrics—they serve our goals well.
+
+**Host:**  
+I think we have time for one more question.
+
+**Audience Member:**  
+My question concerns the data feedback loop from your evaluations, such as gold-standard summaries. Is the ultimate goal to compare and improve models, update prompts, or fine-tune building a larger model?
+
+**Doug Rosenoff:**  
+Yes, it's really all of the above. The byproducts provide us with unexpected insights, but overall, the goal is to evaluate and improve the tools, prompts, and systems we're using. These evaluations align with the goal of continuous improvement in the user experience.
+
+**Doug Rosenoff:**  
+Thank you all very much for the privilege of speaking today.
+
+**Host:**  
+Wonderful. Let's thank Doug Rosenoff for his fantastic presentation.

@@ -1,0 +1,81 @@
+**Host:**
+
+It is my pleasure to introduce Trey Grainger, who is going to say things that are probably much better planned than what I've been saying. All right, I think we're good. We'll go with it. All right, good morning, everybody. I am here today to talk about personalizing search using multimodal latent behavioral embeddings. You can shorten that to just personalized search. It's an area of search that everybody kind of knows about but doesn't get a lot of attention because it's peculiar. We know about running keyword search, lexical search, dense vector search with embeddings, and semantic search, among other topics. Some are more in vogue right now, but personalized search, I think, is a very interesting area of information retrieval, and I just want to talk a little bit about it today. I'll cover some techniques for implementing it, and hopefully, at the end, we'll have some time for questions and general discussion. I'll share some techniques that you might find interesting as you're implementing whether it's a retrieval-augmented generation (RAG) system, a traditional keyword-based system, semantic, vector-based system, or what have you.
+
+**Trey Grainger:**
+
+A little bit about me: I am the founder of Searchkernel, an AI-powered search consulting company. I am also the lead author on the AI-Powered Search book. I'll talk a little bit more about that with Doug, who presented yesterday. I think everybody knows Doug. Formerly, I was the CTO at Presearch, a decentralized web search engine, and before that, Chief Algorithms Officer and SVP of Engineering at Lucidworks. Before that, I was at CareerBuilder. The AI-Powered Search book is coming out in about two months. It is finished, and we're going through the production process with Manning right now.
+
+Two other plugs for everybody here, given the level of intellectual capital we have at this conference related to search and information retrieval. One, we have reworked the book in recent months to make it search engine agnostic. What I mean by that is it can't work with any database, but for most major vendors, the ones at this conference, the book was originally written to use Apache Solr. It still uses Solr by default, but all the examples work in a sort of slightly abstracted way away from the core engine. If anyone who I have not already spoken to is interested in potentially integrating with the book so that the book will work with your technology, and you can use the book to promote your technology, etc., definitely reach out to me either at the conference or afterwards.
+
+Also, as we get ready to launch the book, I know many of you have read it, and many of you have early access copies. If you're interested in providing a quote about your thoughts on the book, hopefully positive, or review or anything like that in terms of helping us promote it, I would definitely love to chat with you as well. That would definitely be greatly appreciated. 
+
+The book covers topics from retrieval augmented generation, generative search and summarization, learning to rank, semantic search, dense vector search, fine-tuning LLMs (large language models) and search, automated learning to rank, from building a learning to rank model by hand using manual judgments to generating automated judgments from implicit user feedback and signals, to active learning, and exploration of other things. It includes what you would expect in terms of leveraging Transformers and LLMs and doing multimodal search and those kinds of things. It also includes typical reflected-intelligence-type approaches like signals boosting, recommendations, and collaborative filtering.
+
+The personalized search I'm going to talk about today is not designed to be a latest and greatest model type book. It's designed to be the sort of design patterns for implementing search in a data-driven, machine learning-based way. So, it's not going to be an evergreen book because our space is changing incredibly fast, but hopefully, for years to come, it will be sort of best practices for end-to-end implementing AI-powered search. So quick plug, there's a discount code, get it if you're interested and off we go to personalized search. 
+
+The agenda for today: I'm going to talk a little bit about the personalization spectrum between search and recommendations, how to leverage user signals, their behaviors and interactions to implement collaborative filtering and personalization from latent features, and use embedding vectors to generate personalization profiles of users. We'll mix user signals and content-based attributes to generate multimodal personalization, clustering products by embeddings to create personalization guardrails — contextually for the personalization — and finally avoiding some of the pitfalls of personalized search.
+
+Before we get into all of that, I want to start with what seems like kind of a dumb question, but it's actually a really hard question: what is an embedding? This is for actual audience participation here. Who thinks they've got a good definition of what an embedding is? 
+
+**Audience Member:**
+
+A numerical representation of one or more pieces of data.
+
+**Trey Grainger:**
+
+Okay, another volunteer?
+
+**Audience Member:**
+
+An AI representation of data.
+
+**Trey Grainger:**
+
+Okay, one more?
+
+**Audience Member:**
+
+Similarly a vector representation of a series of features that you can compare distance angle between that represented in space, so you can see how far apart they are.
+
+**Trey Grainger:**
+
+Interesting, okay. So, we all could look at an embedding and say, "Hey, that's an embedding, right?" So we talk about embeddings, and I like the terminology thought vectors, though that doesn't seem to have caught on. We've got word and phrase embeddings, sentence embeddings, paragraph embeddings, document embeddings. So what I figured I would do is go to the experts in terms of what does the word embedding mean. By the experts, I mean what results come up on the first page of Google or DuckDuckGo search results, then filter out random blog posts and focus on companies that should be able to define this.
+
+For example, one from Hugging Face. Their definition of an embedding is a numerical representation of a piece of information. Cloudflare describes embeddings as vectors created by machine learning models for the purpose of capturing meaningful data about each object. Google has a description from a training course that an embedding is a relatively low-dimensional space into which you can translate high-dimensional vectors. IBM describes it as a means of representing objects like text, images, and audio as points in a continuous vector space where the locations of those points in space are semantically meaningful.
+
+I'm going to give my own definition of embedding that is a little more abstracted than these. An embedding is a coordinate in a vector space into which we map a concept. That's the definition I'll use for this talk. It also opens up room for some other things we'll talk about later. With LLMs and other foundation models, the dimensions learned are latent features. We have capabilities today allowing exploration of similarities based on user content and behavior.
+
+Embedding is just one part of the story, though. In every presentation I give, I show the dimensions of user content and context. Our job as information retrieval specialists is to help users find what they're looking for, whether it's a document, an action, or a task. To do that, we need to understand three contexts: the content we have, the user context, and the domain-specific terminology.
+
+Personalization spans the differences between these contexts. In traditional keyword search, we have the user input, while in recommendations, we consider user profiles. However, there's a huge area between personalized queries and user-guided recommendations. 
+
+If we delve into collaborative filtering, we have no knowledge of content and purely focus on user interactions. Examples include using alternating least squares (ALS) to convert user-item interaction matrices into latent features for understanding user and item preferences. 
+
+For personalized search, we create embeddings for user interactions, leading to boosted search results and contextual personalization. Dynamic clustering and weighted averages between query vectors allow flexibility in applying personalization. 
+
+Lastly, the great unsolved challenge: how to integrate user behavior as a modality in AI-powered semantic search, ensuring a light touch so corrections don't constrain personalization-based mismatches in user expectations. 
+
+Do we have time for a couple of questions?
+
+**Host:**
+
+Thank you, Trey. We have time for a question or two.
+
+**Audience Member:**
+
+Thank you, Trey. You mentioned personalization in user interactions. I was wondering about real-time personalization for anonymous visitors.
+
+**Trey Grainger:**
+
+For real-time personalization of anonymous visitors, search inherently includes taking context and using it for ranking. Sometimes, even with minimal context like an IP-derived location, one can tailor results more closely aligned to a visitor's likely needs. Certainly, care must be applied regarding detailed signals to ensure personalization remains positive and unobtrusive, especially with guardrails.
+
+**Host:**
+
+One more from Zoom. Alexandra asks, how do you measure personalization effectiveness?
+
+**Trey Grainger:**
+
+Measuring personalization often ties back to business metrics rather than traditional information retrieval metrics like precision or recall, given personalized results differ per user. Success processes include improved sales or engagement rates, signifying the system meets user perceived intent.
+
+Thank you, everyone, appreciate it. We have 12 minutes until the next session.

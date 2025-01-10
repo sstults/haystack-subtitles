@@ -1,0 +1,13 @@
+Vector search is no longer confined to theoretical applications or specialized use cases. Its arrival in the mainstream search world unlocks a range of new experiences. Finally, there is a way to truly search for meaning rather than words; it could turn traditional search engines into answer engines, opening up a plethora of new avenues to improve the overall user experience of how people look for meaningful information. Early prototypes of RAG systems demonstrate the potential vector search has to cause an information retrieval evolution.
+
+Vector search is the new shiny object that will be part of our future one way or another.
+
+But how do you prepare for the time after the hype? Adopting vector search is, like many other designs, a balancing act between cost, speed, and quality. How well does it handle production-like query loads? Under what kind of stress does it start to crack? What are the other hidden hurdles when integrating vector search functionality into existing search pipelines?
+
+In this talk, we’ll take you on a journey to explore how vector search at scale behaves under various scenarios using a Lucene HNSW index. We’ll share a reusable method for testing index and query performance while methodically adjusting the most common vector search variables. On top of that, we’ll provide valuable insights for each product team that is new to vector search (like us) but doesn’t like surprises in production.
+
+Tom is the Technology Product Owner Search at Wolters Kluwer where he leads the Search Center of Excellence team. Search has been the main theme through the last 20 years of Tom’s career, as webmaster (SEO techniques), as a post sales consultant for Autonomy (enterprise search implementations) and as a search engineer for Wolters Kluwer (optimizing search quality). In his current role as Product Owner Tom oversees the development and adoption of the Search Service that powers various large online research products.
+
+Mohit is the Search Architect for the Search Team at Wolters Kluwer, with over 8+ years of experience in roles such as Software developer and Search Relevance Engineer. He currently focuses on the architecture, development and adoption of the Search Service, which is the foundation for many online research products.
+
+Haystack US 2024 brought to you by OpenSource Connections, Experts in Search & AI, offering consulting, training and specialist staffing - talk to us about your search & AI project at https://www.opensourceconnections.com .

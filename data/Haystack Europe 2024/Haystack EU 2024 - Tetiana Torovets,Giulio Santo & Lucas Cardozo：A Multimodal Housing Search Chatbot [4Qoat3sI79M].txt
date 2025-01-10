@@ -1,0 +1,76 @@
+**Host:**  
+For our next talk, we have speakers coming from far away, from Brazil and Portugal, to discuss property search and how multimodal LLM-based search assistance can improve this process. We have Tetiana, Giulio, and Lucas from QuintoAndar to give a presentation. 
+
+**Tetiana Torovets:**  
+Thank you very much for the introduction. There will be three of us presenting today because we are representing a large team, but we will be disciplined with time, don't worry. My name is Tetiana, and I'm the Head of Data Science at QuintoAndar. Giulio is a Staff Data Scientist, and Lucas is a Staff Machine Learning Engineer. We will talk about building a multimodal LLM-based search assistant chatbot, which, of course, we have a unique internal name for this project: we call it Copilot.
+
+So, yes, we will talk a little bit about the details of how we did it. We will put you in the context of what our company does, explain why we decided to build the assistant this way, what the main components were, and, of course, what we learned on this fun journey. QuintoAndar is one of the largest property tech companies in Latin America. We help people find houses to rent, and importantly, we provide many useful additional services to do that. For example, we guarantee to the landlord that the tenant will pay the rent on time during the entire contract period, and we allow people to schedule visits to the properties online, reschedule them, and sign contracts—all online. I don’t know how good the real estate market is in Germany or Portugal, but we would love to have the same services available; it would make our life so much easier.
+
+Our headquarters is in São Paulo, Brazil, and we operate in five more countries. We have a technical hub in Portugal as well. In terms of the information retrieval game, it's interesting because we have millions of people visiting our platform every month and millions of properties listed, making search a fantastic area to focus on.
+
+So, why Copilot? Why this assistant chatbot? When it comes to renting your house, the ideal experience isn’t just using site filters or a perfect search text box. The ideal experience is talking to a great agent who understands your needs and knows all neighborhoods. When we decided to invest in this product, we saw our mission as bridging the gap between the experience users have with site filters and talking to a human agent who really understands their problem. Strategically, we realized that if we don't start investing in LLM-based and multimodal-based search now, we’ll be very much behind the race in a couple of years.
+
+Before we started building our product, all searches were only filter-based. We already knew that users were doing a lot outside our application. For example, if you like a particular visual aspect of an interior like a wooden floor, you would need to go to each property listing to manually check. Or if you want to see how close an apartment is to supermarkets, you’d have to check the map manually. If you're looking for an area with good schools, again, you're left manually configuring filters that might get you there. We can add more filters, but this approach is not scalable, and we knew it.
+
+Here's what we have now—this is really how our product works. Although we’ve translated everything from Portuguese into English for clarity, it remains a live product. I'm not sure how visible this is, but a user might ask for an apartment in Copa. "Copa" is slang for Copacabana in Rio de Janeiro. They might specify a price range between 10K and 20K and a wooden floor. You can see that the chatbot immediately recognizes the location as Copacabana, selects the filters for apartment, price range, and visual aspect like wooden floor. It also understands language, interpreting "Copa" as Copacabana. Behind the scenes, it knows this is for renting rather than buying, based on the price range.
+
+If you are satisfied with how Copilot understands, you can go to the search, and the first beautiful apartment shown will have a wooden floor; the price range is correct, and the location is correct, so the product is doing what we expected. What is hidden behind the scenes has two big parts. First, we collect data via the chat to find out what to search for. The chat will continue until we have enough data. Next is a search engine that retrieves information.
+
+Here's a first high-level view of the architecture. Plain text from the chat goes to the chat service. This service extracts filters, supports the conversation, and maintains user state. When ready, we proceed to the search service where hybrid search is performed.
+
+Let’s zoom in on the chat solution, another high-level architecture. Even more detail here, but briefly—there's a moderator up front to handle prompt injections and inappropriate conversations. Most users head to the search flow API. The core system has a filter extractor, transforming plain text into JSON with filters, and a chat answering part to maintain conversation and offer location suggestions. I will hand it over to Giulio now for more details.
+
+**Giulio Cesare Mastrocinque Santo:**  
+Hello. Let's dive into the filter extractor part. An essential component of search flow is taking user inputs and converting them into JSON, later translated into queries consumed by the search service. We say "extractor," but it involves updating information. As a user interacts with the chat, a JSON file reflects user preferences. Receiving new inputs, it updates existing filters or adds/removes them based on the text input. This task is complex; we have over 70 possible bits of deterministic information to extract, including property type, business context (rent or sale), amenities, and more. We also extract visual elements for image search, overseen by an individual extraction process with moderation.
+
+Here's a JSON example; it can expand depending on conversation length and user requests. It includes property type, visual search like a list of strings, for multimodal searches.
+
+Our extraction process takes current user preferences in JSON, a new input such as updating the number of bedrooms and an industrial style request, and executes classification—a multi-target classification currently utilizing LLMs due to insufficient data for training a new model. In this two-step classification setup, the updater meticulously changes desired features according to requirements, refining bedrooms, perhaps adding industrial style. We're consistently evolving these two steps to enhance accuracy.
+
+A chat answering component communicates changes in filters and manages location suggestions based on conversation history. We collect data from inputs, moderator outputs, router classification, search flow, and chat system responses. These measurements help assess chat system behavior.
+
+For offline and online evaluations, we use manually-produced golden datasets to conduct offline evaluations, while production data aids online assessments. We rely on machine-learned classical classifications for deterministic tasks and leverage LLM judges for subjective tasks, adopting a more general classification on inputs, inspecting improvements or identifying model flaws.
+
+A Judge example shows a task simplification where it analyzes actions like changes in location and verifies correctness or attempts enhancements. Guided by leveling criteria, it involves chain reasoning and utility of multi-model embeddings.
+
+An overall architectural depiction for evaluations includes golden datasets, corner cases, offline evaluations, CICD checks, and production data processes for continuous online evaluations. Leveraging Label Studio, an open-source tool for golden data annotations, efficiently handles intricate processes like annotating 71+ features.
+
+**Lucas:**  
+Thank you, Giulio. Now, let's discuss how we handle the search aspect of our project, aligning with our conference themes. Originally, our app encompassed large forms where users selected house features, prices, and locations. While these initial parameters fostered retrieval steps, they have transformed with the new chat component. Now, beyond location and house features, chat-derived content informs our system, alongside added visual preferences, analyzed as text strings compared to indexed house images.
+
+This task employs multimodal embedding technologies to interpret and juxtapose text and visual inputs efficiently. Through embeddings, achieved via accessible models like Clip or VSE++, search becomes suitably sophisticated with simplifying embeddings. We score matches using a similarity matrix between house images and textual descriptions, adopting a Max operation grouped by visual preference for optimal scoring. This scoring enters existing layers, including a light ranker and ML-powered heavy ranker, culminating in an overall score seamlessly integrated into conventional retrieval workflows, just ranking results for user presentation.
+
+Evaluating out system utilizes both traditional metrics and LLM judges, observing our system’s health through relevance alongside business-oriented Matrix. Such scrutiny, particularly crucial when expanding to multimodal contexts, empowers metric calculation, reflecting on user-engaged outcomes like visits or contracts.
+
+Reflecting on achievements and areas for enhancement, clustering-based indexing of images and various strategy explorations for similarity aggregation marked initial successes. Future endeavors involve hybrid search possibilities, leveraging LLMs to enhance description and indexing processes for performance gains. 
+
+Explorations with visual element-centric relevance rank departures from embedding reliance present interesting challenges and prospects. Manual techniques and thresholds currently align with embedding-driven results, necessitating ongoing experimentation.
+
+Finally, I extend gratitude to the team behind this extensive, collaborative project, expressing an open welcome to those interested in engaging with contexts of search and relevance. Thank you all for your valuable time here today.
+
+**Audience Member:**  
+Thanks for a great talk and case study. About the chatbot and user input—how do you handle extremely complex requests with many filters that reduce the result set so much there's essentially nothing matching? This could lead users to think the search is broken.
+
+**Tetiana Torovets:**  
+That was one of our primary concerns post-launch. We aim to extend this with guided search, utilizing recommendations to suggest how to adjust or broaden filter sets—be it multiple locations or adjusting price—to guide users back to non-zero search results.
+
+**Audience Member:**  
+Do you have a moderation layer or guardrails in place for the chatbot’s security and misuse aspects?
+
+**Giulio Cesare Mastrocinque Santo:**  
+Yes, we incorporate several layers of guardrails. The provider offers a few by default, but we also built a custom moderator to prevent prompt injections and filter inappropriate content. This occurs at every user input, alongside another moderation layer focused on the image search flow, particularly due to open text possibilities.
+
+**Audience Member:**  
+Regarding UX: Conventional classified ad platforms generally favor traditional filters over full-text searches. What questions do users really want answered by the chatbot? Is there much adoption?
+
+**Tetiana Torovets:**  
+That’s a great question. We observe that users are transitioning to seek solutions that traditional filters can’t provide—like searching for specific visual aspects. Both our research and results confirm that when users start utilizing visual filters, business metrics increase. Our product management team is committed to highlighting these benefits to our users.
+
+**Audience Member:**  
+What labeling tools did you use to create your golden datasets?
+
+**Giulio Cesare Mastrocinque Santo:**  
+We internally utilize Label Studio, an open-source tool with flexible functionality. Given the complexity of annotating features, our focus lies in minimizing annotation errors to strengthen evaluations, using Label Studio to streamline this for our annotators effectively.
+
+**Host:**  
+Unfortunately, we’re out of time for questions. Please join us during our break to speak further with Tetiana, Giulio, and Lucas. Thank you for your engaging presentation!

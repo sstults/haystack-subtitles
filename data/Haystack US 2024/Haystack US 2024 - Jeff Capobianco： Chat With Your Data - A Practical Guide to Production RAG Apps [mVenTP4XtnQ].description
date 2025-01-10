@@ -1,0 +1,9 @@
+At Moody’s, we went from a laptop prototype to a premium-subscription RAG product in under 6 months. Our users’ workflows have been accelerated by the Research Assistant’s ability to synthesize responses to freeform questions without hallucination.
+
+In this talk we will share lessons that we learned the hard way, so you can avoid similar pitfalls when setting up your chunk embedding infrastructure, using AI to measure response relevance, blending relevance with recency, managing costs, and organizing your teams.
+
+By the end, you will have the tools to build a strategy for RAG applications with real business impact.
+
+Jeff Capobianco's journey into search began with a background in data engineering. After his first project tuning search relevance, he was hooked. Jeff’s philosophy centers around thoughtful analytics, meticulous measurement, and bold experimentation. Currently, Jeff is the Product Manager of Search for Moodys.com. In this role, he is helping to drive the evolution of the rapidly growing semantic search platform, as well as the site’s main search experience. 
+
+Haystack US 2024 brought to you by OpenSource Connections, Experts in Search & AI, offering consulting, training and specialist staffing - talk to us about your search & AI project at https://www.opensourceconnections.com

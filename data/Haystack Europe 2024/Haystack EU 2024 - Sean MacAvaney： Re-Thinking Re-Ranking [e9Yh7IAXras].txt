@@ -1,0 +1,131 @@
+**Host:**
+
+One of the great things about Haystack is that we don’t just have people from the industry side here, but from the academic side as well. Our next speaker is Sean MacAvaney. He's currently at the University of Glasgow where he's a lecturer, an assistant professor, and a researcher developing new techniques for using AI in search engines. He's going to be talking about rethinking reranking. Without further ado, here’s Sean.
+
+**Sean MacAvaney:**
+
+Hello everybody, thank you for the lovely introduction. I'm Sean MacAvaney. I'm a new face around here; I don't recognize many of you, and I'm sure I'm a new face to you guys too. Just a little bit of background on myself, as was introduced, I'm Sean MacAvaney. You can find me on Twitter or X with my surname there. I'm a lecturer, really an assistant professor, at the University of Glasgow, and my research mostly focuses on very practically oriented research within information retrieval. 
+
+If you've heard of techniques like learned sparse expansion, the kind Slade uses to add tokens to documents or queries, search results evaluation using large language models so you don't have to do as much labeling, and document quality prediction so you don't need to index garbage. The topic of today’s talk is adaptive reranking. I'm happy to chat with you about any of these topics or other things as well.
+
+Let’s start off talking a little bit about what reranking is. We had a nice introduction earlier today on a lot of the pipelines and processes that you may go through, but I want to take a separate twist on this by rethinking this whole process. Typically, a reranking system would look like this: first, you have some user query where the user enters “tablet” or something into the search engine. You run your retriever, maybe that’s BM25 for lexical search or fancy or vector methods, to get some list of results over your dataset. This is an okay ranking, but maybe not so great all the time, right? Especially if you’re doing something like lexical search, there can be a lot of problems in how these results are ranked.
+
+So what you'll often want to do is use a ranker, something that uses a model like BERT or GPT, to hopefully find a better order for the search results. Hopefully, at the end of that, you get some new awesome ranking of these results. Using our fancy large language models, you really understand the content of documents, really understand the intent of the query, and hopefully put these documents in a much better order.
+
+Now there is a problem with this process. You start off with millions of documents, narrow it down to hundreds of documents, and then use the ranker to pick the top 10 documents or so to show the user. If you miss a document when doing retrieving and you miss this golden document that doesn’t quite meet the filter, you lose it completely. You’ll never have it down here to rerank. If it's a product you’re searching for, you never get it.
+
+To address this problem, people have thought of all sorts of solutions. The typical go-to place to address the recall problem is to focus on the retriever. It’s a natural place to look. The retriever misses something, so you want to fix it so it doesn’t miss those things. People come up with all sorts of great approaches like learned sparse methods, hybrid methods, etc., to enhance this pool of documents that the reranker gets, so you don’t miss what you’re really looking for.
+
+What I would argue is that what we wish we could do is run the ranker over the entire corpus. We have millions of documents and really trust models like GPT’s assessment of search result quality. We wish we could score every single document to ensure we get that gold document at the top, assuming it's the best document and your ranker can identify that. Of course, this is just way too costly, doing all this inference takes a lot of time, and using GPT incurs a lot of API credits and so on.
+
+The next best option, I would argue, is to give the ranker access not just to the list of initial search results you get from your retriever but also to the whole rest of the dataset, the whole corpus. Now this seems like the same thing as scoring everything, but leveraging this initial set of results is super powerful to unlock a lot of other documents in your corpus. It seems crazy, but I'll show you how this can be done with minimal cost. Basically, with essentially no extra cost, it can not just improve reranking methods using GPT or whatever but retrievers like ColBERT and others. It's ready to use with open source tools for you to start using today if you like.
+
+Like I promise I'm going somewhere with this. Let’s talk about the game Battleship. Who knows the game Battleship? Yes, seems like most everybody, that’s good. I asked around and in German it's "Schiffe versenken," and in Spanish, it translates to "Sink the Fleet." Hopefully, you have some familiarity with this game. I used to play it as a child, it is kind of fun. Basically, the idea is that you’re playing against an opponent who has a secret board where they have a bunch of ships. They have some long ships and some short ships all laid out on kind of this coordinate grid, but you don’t see that board. Your board starts off completely empty. You don't know where the ships are, but your goal is to identify the positions of all your opponent’s ships. You want to figure out that the long ship there is from B2 to B5 and so forth.
+
+The way you do this is first you just make a guess. You don't really know anything about your opponent’s board initially. You make a guess, ask your opponent if it’s a hit. It’s as if you’re launching a strike into the ocean, though you don’t actually have any intelligence about where the ships really are, but let's ignore that limitation of the game. You ask your opponent if it’s a hit. It turns out this one is a miss; there’s no ship there. Then you make another guess and that happens to be a hit. So you ask your opponent, you know, “F2, is that a hit?” Yes, it is a hit.
+
+Once you know that's a hit, the way the game works, you don’t sink the ship immediately. You need to guess all the positions of the ship. At this point, you learn a lot about where the ship might be. You know that ships can only be oriented vertically or horizontally, so you know certainly that another position of the ship is in one of these coordinates with the question mark. Maybe you guess one of them and it’s a miss. You guess another one and that's another hit. Then you iterate on this process to find the complete ship.
+
+What does this have to do with ranking? I would argue that when you’re doing reranking you essentially think of these initial list of results you get as reasonable guesses on this board. So maybe you have documents one, two, and three at these particular positions. Instead of asking your opponent if your document is a hit or a miss, you’re asking your ranker, “Is this a good document? Is this a bad document? Where does this go in the ranking?” Your ranker gives you some new information. Maybe this document up there at position C7 is the top-ranked document and a really good document for this query, but the one over here at E5 is not so great.
+
+In normal reranking, you just stop right there. You learn which documents are good and which are bad and then you just show these to the user. That would be a terrible strategy if I was playing Battleship. I would basically miss all the ships if I wanted to find all the positions. I would need to keep on guessing randomly until I found all of them. We've learned a lot of information about what makes a document relevant to this query, by identifying a document that is considered relevant by a strong model like GPT.
+
+Adaptive reranking is this approach where we leverage this information from high-scoring documents to find other ones missed by the retriever. We don’t need these documents to come back in that first set of guesses. We just need something that gets roughly close to allow us to explore the area around it. Maybe we send these four other documents adjacent to our fancy reranking method. Some of them are not so good. We're just using the proximity here to kind of guess what might be a good document or a bad document, but we find another one and that gives us even more information about what’s good, and we iterate on that process, so on and so forth. Does that make sense? 
+
+The next question is how do we decide which documents are worth checking? In Battleship, you know characteristics about the shapes of the ships, like their lengths and they must be oriented in specific ways on the game board. In ranking, we don’t have that exactly, but we have something similar. One option, once we identify a document we think is good, is to issue that same document as a query back to our engine and take the top results for that query. We treat this document as a query and find the most similar documents to it. If this is a good document, documents similar to it are probably also good. This goes to a lot of IR theory from Van Rijsbergen with the cluster hypothesis and so on.
+
+In a practical sense, the idea is that a similar document to one you think is good might also be good. We don’t know for sure, but we’ll use the ranker to confirm if it’s actually good. This is a really bad idea because it’s really slow. You don’t want to actually execute a lookup for your document, maybe even encode it as a new query, execute it against the engine, all that. It’s a terrible idea and won't be practical in the slightest, but it is still the right idea in my opinion because you’re able to leverage the information you get from this document to say, “I want documents along this line; what are the other good ones there?”
+
+What can we do better? We can leverage something we actually already have in most vector databases. We can leverage this k-nearest neighbor graph we build for vector search using an HNSW search. We already have this graph that says, “Here’s a document, here are similar documents to this,” and we already use this for doing search over vectors. This graph already establishes this proximity, similar to the coordinate system in Battleship. It allows superfast lookups, so you're able to immediately see, by your document identifier, which other documents are similar. This graph is constructed offline, so you’re not incurring any costs at query time. It’s already ready to go.
+
+So, that’s the idea. How well does it actually work? First, a few technical bits: being a scientist, I got a caveat with all this stuff. We do things like fix the reranking budget, which is the number of documents we’re sending to the ranker, so we're not comparing a system that ranks 100 documents with one that ranks 1,000. No, all these systems are ranking the same number of results so that cost is fixed. In our adaptive setting, we take half the results from the first stage and augment it with the other half of results from this proximity graph. We look up the best documents and iterate on that process.
+
+In terms of whether it works, we measure NDCG for the overall ranking quality and recall, which is the percentage of relevant documents retrieved, and we test on a variety of different reranking pipelines.
+
+Here we have a graph showing recall at 1,000 on the x-axis and NDCG on the y-axis. There's an initial set of retrievers: BM25 for lexical search, an augmented BM25 called doc2query, TCT which is a vector search, and Spade version 2++ XYZ, which is very strong, getting high recall and very good search results.
+
+Putting a ranker on top of this — let’s try reranking our lexical search results using a reranking model, here we’re using MonoT5, though we tested this across many different ones. As you would expect, when doing just regular reranking, it improves the overall search result quality significantly. NDCG improves from what, 6 to 73? That’s a big jump. You’re getting many more best results at the top of the list, but recall doesn't change. It's a vertical line. You’re not finding any new documents that you had before.
+
+When you apply this adaptive approach, it shoots way over. Not only do you further improve the quality of the top result, but you’re finding a lot more of the relevant documents for this query. It's doing better than something like vector search by leveraging the cross-encoder, i.e., the ranker, to find the best results. It’s better than fancy semantic search. Not quite at the top, but you can also rerank and adaptively rerank on all other systems and see consistent results in terms of improving overall search result quality and efficiency. It’s not like you’re reranking 1,000 documents when you previously ranked 100, the costs are basically fixed. You're still reranking the same number of documents but smarter about which documents you rank. The process of looking up these documents is really cheap, calculated offline, so the cost is fixed across these systems.
+
+This doesn't just work on academic models like MonoT5. We tried it on CoBERT, a cross-encoder model, and saw similar results. NDCG and recall increased. 
+
+So in summary, adaptive reranking, which uses a nearest neighbor graph exploration, really helps neural reranking models. By focusing on the neighbors of top-scoring documents, similar to playing Battleship, finding similar positions to those we know are good helps prioritize documents that are more likely to be relevant. We have more findings and there's a conference paper on it if you want to read more.
+
+Moving onto retrievers, let's talk about retriever models. The adaptive approach involves two strategies. We focused on the first—scoring documents near the best we've found, which is essentially adaptive reranking. The second bit, which I was subtle about before but is really important, is reranking itself. It says start with good but inexpensive guesses about what good documents are, not just randomly guessing on the board for Battleship. You have good guesses about where ships are, where relevant documents are.
+
+The intuition for the next part of this talk is can we leverage the same strategy to help dense retrieval models? It turns out, yes. You might be familiar with HNSW. It’s one of the approximate nearest neighbor algorithms commonly deployed in many engines. HNSW kind of applies this random strategy as if randomly picking on your Battleship board, randomly subsampling nodes from one graph version to the next, then searching the opposite way down. It basically starts off searching and scoring random documents and iterating on this process to find slightly better documents to the lowest level, then finding the most similar results. HNSW takes the random approach, guessing and narrowing in from there.
+
+Can we leverage instead this initial cheap set of search results from simple lexical search, like BM25 for very low cost? Can we use this to seed the search process, instead of navigating the hierarchical graph, enable us to shortcut this hierarchical approach of HNSW?
+
+How well does this approach work? We're most interested in two things: overall search result quality on the y-axis, and retrieval latency in milliseconds per query on the x-axis, searching over 10 million short passages, using a standard information retrieval benchmark, an entirely standard baseline retrieval model, using a single CPU core and thread.
+
+If we did an exhaustive search on a GPU over all vectors, something more expensive than a single CPU core, it gets us a line at around 65 milliseconds. HNSW is really strong, doing a solid approximation of the full results in 5 to 8 milliseconds, giving very strong results in the top ranking. Varying parameters of HNSW impacts how long you're willing to take by exploring graph extents.
+
+Adapting and reranking, just on its own, outperforms HNSW in these settings, highlighting how strong reranking itself is already, by allowing an adaptable approach that is in favor of neighbors. This turns out to do better than exhaustive searches, finding more of the best results. It doesn't just work on single representation dense vectors, but works on CoBERT models. So at SIGIR this year, a paper tested ladder, reranking, and Plade—a bespoke engine for CoBERT to find the best results. Results are that Ladder's adaptive approach performs better at any operational point.
+
+So, in summary of the second part, adaptive reranking ideas can improve retrievers too, not just rankers. It extends beyond expensive language model reranking techniques, leveraging them at the start of search for better results. It applies to both single and multi-vector dense retrieval models, with more findings along with conference papers to explore further.
+
+These techniques are open source and ready to use. They're not just academic ideas but applicable tools for your use today. At University of Glasgow, there's a platform called PyTerrier that lets you integrate different components, including Adaptive Reranking and Ladder. It can also be used with the Rankers package if you're familiar with it. I've got a fork of Rankers, and I plan to make a pull request soon to hopefully get into the core package. There's work on adding Ladder to Lucene. The maintainers seem positive, though they're a bit picky, so we're still working on the finer details. The goal is for this to be ready directly in Lucene. A corresponding issue is in Solar, and Joe Burem says you can also do this in Vespa.
+
+How am I doing on time? There’ll be sufficient time for questions. So, in summary: Adaptive reranking improves the quality of search results at a minimal cost. Using offline computation and the idea that similar documents are close to one another improves search quality and finds more relevant documents almost without additional overhead. It works for both rankers and retrievers and is ready to use with open source tools.
+
+I'd like to thank collaborators on these works: Craig MacDonald at University of Glasgow, Nicola Ferro at the University of Pisa, Rich Caruana, and Noor at Georgetown University collaborated on many projects.
+
+Are there any questions?
+
+**Host:**
+
+Fantastic, thank you Sean. When you're talking about getting this into Lucene, what you need is a Lucene committer. Any Lucene committers in the house? There are some people here who could probably help with that, which is one of the wonderful things about this event. Do we have any questions for Sean?
+
+**Audience Member 1:**
+
+Hello, first of all, thanks for the amazing talk, really inspiring. Am I right in thinking that if I picked something better than BM25 for my domain to retrieve the initial documents, I might come even higher in the benchmarks, right?
+
+**Sean MacAvaney:**
+
+Yes, kind of the core results here with BM25, using just a simple lexical search, and seeing improved results. But yes, if you have a stronger initial stage, you're still going to see improvements. This is ultimately bounded by how good your ranker is, like we're using MonoT5 here. There are even better ones today, like distilled GP4 and such. I imagine you could achieve even higher results, going both up and to the right with stronger first stages.
+
+**Audience Member 2/Online:**
+
+Why does Vespa need a custom Searcher; can rank profiles solve it?
+
+**Host:**
+
+I think that’s a question for Joe Burem. Where are you, Joe? There you are, okay. I'm going to take this over to Joe.
+
+**Joe Burem:**
+
+Thank you for a great talk, Sean. Yes, you can do a lot of different things in Vespa's ranking profiles. You can express sparse retrieval like BM25 or rerank using an adaptive model. But the logic of reranking and expanding the search after finding a good hit requires custom logic, which in Vespa is done with a custom Searcher.
+
+**Audience Member 3:**
+
+Thank you for the great talk. Maybe I missed something but I think you mentioned using a cross-encoder as your ranker? It’s unclear how you build the graph of products.
+
+**Sean MacAvaney:**
+
+The question is, you're using a cross-encoder to score, and when building a graph that shows similar documents or products, you're using the same thing for scoring? That's a detail I glossed over, sorry about that. It doesn't matter much what you pick. We tested lexical similarity and semantic similarity for building a graph. They all worked. As long as there’s some notion that one document is similar to another, that's what matters. In Academia, this idea is called "core relevance." If there’s a connection like link structure, for example, you can use that to relate products converting relevance into practical relationships.
+
+**Host:**
+
+No more questions online at the moment. Do we have any more in the house? Over here. 
+
+**Audience Member 4:**
+
+Great idea today, something new I learned. I have a question in the first part - using a cross encoder and applying an AN search for similar documents, did you learn anything about setting thresholds for this, like only the top results?
+
+**Sean MacAvaney:**
+
+It's largely robust to K in your K&N. A low setting means you’re not searching enough. Too high means you aren't letting it explore new areas. Anything between 4 to 16 neighbors tends to work nicely on different domains and applications.
+
+**Audience Member 5:**
+
+How many iterations do you do between retrieving, reranking, retrieving, and reranking?
+
+**Sean MacAvaney:**
+
+Tested by setting a fixed budget, like reranking 100 documents. The process alternates batch by batch because processing with a cross-encoder requires batching, like a batch size of 16. Alternate between pulling top results from BM25, scoring neighbors, and the initial set alternates scoring between those modes to manage proximity scores.
+
+**Host:**
+
+Do we have any other questions for Sean in the room? Okay, so next Haystack we’re expecting implementations and would love some practical stories, please. Absolutely. Thank you very much, Sean. Thanks!

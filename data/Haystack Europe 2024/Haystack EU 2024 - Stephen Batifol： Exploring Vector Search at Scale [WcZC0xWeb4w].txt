@@ -1,0 +1,49 @@
+**Host:**  
+Fabulous, right? So, our next presentation is going to be from Stephen Batifol. If you've seen his profile picture on the website, he may have seemed a bit intimidating, but I'm sure he's lovely. He's going to be talking about exploring Vector Search at scale. Stephen is a Developer Advocate at Zilliz. He has worked as a Machine Learning Engineer at Wolt and as a Data Scientist at Brevo. He is also a founding member of the MLOps.community in Berlin. The group organizes meetups, workshops, and all kinds of lovely machine learning events. In his spare time, he enjoys boxing and surfing, though maybe not at the same time. Trying surfing is hard enough already. Okay, so please put your hands together for Stephen.
+
+**Stephen Batifol:**  
+Thank you very much for the introduction. Just to bounce back on what you said, I run the MLOps.community chapter in Berlin. We're doing an event with Girls in Tech at the end of November. If you know some people who might be interested in joining the workshop, you can come to me or directly to her as well, she's also part of it. Now, I’m not a woman, but I’ve never been as stressed as I am today giving this talk, because I’ve only been in the search industry for seven months. Before that, I was in the MLOps industry for years. But that's enough about me, let’s start with a bit of a story.
+
+We’re going to go on a bit of a journey, hopefully, you can relate to the first talk we heard today, which coincidentally relates a lot to what I’m going to talk about today. It's quite interesting; sometimes technology can be like a demo effect, and I indeed have a live demo after. So, imagine you are an AI developer starting fresh with your new AI product idea. You have a genius idea, maybe you apply to Y Combinator, get funding, and everything is going well.
+
+You start with some vector databases for the unstructured data; you use a vector database and some embedding models to store your vectors. You are happy; everything works well, you get some traction for your app. But then, more data comes in and you start experiencing some growing pains. Searches that took less than 10 milliseconds now take 500 milliseconds. Your index updates slow down, maybe from live to nightly, resulting in a lot of stress.
+
+You're learning quickly that just adding data to a vector database won't work at a crazy scale. Let’s discuss the different types of indexes. We have hash-based and tree-based indexes that you won’t use since they are not very useful in our use case. You have graph-based and inverted files – notably, HNSW and IVF in our use cases – and Mana, which is a fancy name for something similar. You need to balance speed and accuracy for your searches, using techniques like quantization to aid throughput.
+
+Continuing on our journey, you realize going distributed offers more problems but also solutions. Sharding, random sharding, hash-based sharding, or semantic sharding offer ways to optimally group your data. Perhaps you might index by language or partition different types of data, optimizing search times.
+
+Eventually, we come to consistency, availability, and partition tolerance as outlined in theorem. Real-time data access is crucial too, requiring write-ahead logs or two-tiered systems and incremental indexing. Monitoring then plays an essential role to check query latency, index update times, and resource utilization, ensuring optimal system performance.
+
+Lastly, maintain a look at what’s happening in the industry regularly as tweaks and changes optimize existing systems continuously over time. Congratulations! If you successfully do all that, you’ve basically just built Milvus. We developed it with a fully distributed architecture, using MinIO for storing vectors and indexes and Kafka for data insertion and updates. Our system is fully stateless.
+
+To cater to ingestion rates in the billions, we use Milvus partitions, which further contain segments: growing segments and sealed segments, enabling real-time and batch processing. We’re adopting a distributed search mechanism, achieving parallel query processing at immense scales.
+
+Now, enough of talking. Let’s move to the live demo. I’ll show you something we prepared. I have a cluster with 5,483 million vectors I’m connecting to. We’re leveraging an autoindex that optimizes for performance using HNSW, with the Vector Search running on GPUs for even higher throughput and lower latency.
+
+I’m reading in embeddings from a dataset and utilizing batch queries to assess Queries Per Second (QPS). This setup accommodates around 500 million vectors or so, achieving about 238 KPS. You’d probably achieve less with a CPU, as the latency would be significantly higher. Currently, the average latency is 45 milliseconds with the P99 latency close to 100 milliseconds.
+
+To further enhance our setup, one could explore Nvidia’s Kagra, which is essentially HNSW on GPUs. It exponentially boosts performance, but naturally, GPUs are expensive, so consider this for large-scale operations. In scenarios where customers process petabyte data scales, incorporating Kagra can profoundly expedite results, aligning with enterprise-grade requirements — as was the example with a government setting’s citizen documentation system.
+
+**Audience Member:**  
+Thank you, Stephen, for the fascinating insights. Today, I learned that GPUs excel with batch processing. For large batches, what are some practical instances you’ve encountered where that comes in handy?
+
+**Stephen Batifol:**  
+For large-scale setups, like government-linked datasets with petabytes of data, processing isn't about basic queries anymore. They scan entire histories, citizen-related documents, etc., iteratively, hence batch processing becomes crucial there. It’s daunting but that’s where GPUs shine when structured properly.
+
+**Audience Member:**  
+Hi, thanks for the talk. Can you clarify how CPU vs GPU readiness can impact setups on MinIO, and whether it’s a flexible mix or match scenario for datasets?
+
+**Stephen Batifol:**  
+GPUs operate even more efficiently in parallelizing workloads, which is beneficial while interacting with MinIO. Practically, for CPU setups, we relegate them to lighter tasks. When you’ve significant workloads to process, aligning GPUs to handle those enhances throughput remarkably, balancing distribution effectively across nodes.
+
+**Host:**  
+Great questions! Any more from the floor here?
+
+**Audience Member:**  
+Yes, one more. Can Milvus be efficiently deployed on-premise and are infrastructure guidelines available for such implementations?
+
+**Stephen Batifol:**  
+Indeed, you can deploy Milvus on various infrastructures, including on-premise setups. Our comprehensive documentation outlines scalable architecture guidelines to assist ML developers and administrators in achieving optimal performance. Queries regarding infrastructure alignments readily find resolutions within our open-source community too.
+
+**Host:**  
+Alright, I think we'll wrap it up there. Please give another round of applause to Stephen Batifol! Thank you, Stephen.

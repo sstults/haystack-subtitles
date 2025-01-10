@@ -1,0 +1,79 @@
+**Host:**
+
+Hello, everyone. Thank you for being here today. Welcome to my talk, "Zucchini or Cucumber? Benchmarking Embeddings for Similar Image Retrieval Thanks to Your Weekly Grocery Shopping." I'd like us to start with a little game. Imagine that you're building an image recommendation model. Your user is looking at this wonderful vegetable, and your model generates item recommendations that should be relevant. 
+
+Raise your hands if you think all of the items your retrieval finds are cucumbers. Now, raise your hand if you think at least half of them are cucumbers. Well, the answer is half of those are zucchinis, and the only way to tell them apart from me is the shiny plastic on the cucumbers. 
+
+Let's do another game. I hope you won't be too distracted as it's just before lunch. Our user is now looking at this nice Granny Smith apple, and your model suggests all of these results. Raise your hand if you think all of them are apples. Now, do you think at least half of them are apples? Well, again, you're right. We get one nice apple in the top right and a little pomegranate on the bottom right.
+
+Now, why am I talking to you at a tech conference about comparing apples and oranges? My name is Paul-Louis Nech. I've been coding pretty much since I was 18. I've been a software engineer at Algolia since 2016, focusing on machine learning applications for the last five years. I've built APIs and tools at Algolia, from Android UI libraries to voice search tooling, and now I'm focusing on an image recommendation engine.
+
+**Paul-Louis Nech:**
+
+The last project I worked on was a similar image recommendation API based on vector embeddings and nearest neighbor retrieval to return items that might match your user's interests. Here's a live example from a customer, CabinetParts. If you break a part of your cabinet, you don't throw it all away; you just get the replacement handle. 
+
+For this example from a Romanian decoration item shop, there's a pretty fancy ostrich lamp. I wouldn’t know how to put that into query words either, but our model picks up on other animal lamps. Image vector models can semantically embed a representation and recognize that this is about lamps, decorations, and animals.
+
+Here's an example from a mosaic website. They have many different kinds of mosaic designs. When you look at one and ask our model, we find a few other visually similar mosaics with the same kind of semantic content, like flowery decorations.
+
+What is Looking Similar and how does it work in a nutshell? This is a vector retrieval API, but as John Solitario said yesterday, all great vector-based user experiences are hybrid approaches. We start with vectors using an image model to transform arbitrary sized images into fixed-length vectors. We then turn them into smart hashes using a learned semantic hashing representation. Once we do this, we retrieve them using a navigable small world representation to give you approximate nearest neighbors from the image you inputted.
+
+Like Simon said yesterday in his talk, filtering based on object-level metadata allows you to focus vector retrieval results and enable many different use cases. To me, this works really well for solving the cold start problem when you want recommendations on data without any user interactions to build collaborative filtering matrices on top of.
+
+One day a customer asked me, "Do you handle groceries?" How would I know? Do I look like I have groceries in my home? This is a good question. Do we know how to recognize food with this model? If you watched the show "Silicon Valley," you'd know there are state-of-the-art technologies to recognize food. Clearly, we need to step up our game and to prove that we can do at least as well.
+
+I thought it would be just a day of work; I just needed a benchmark to compare our model on the existing data. I started searching for a benchmark and was surprised by the lack of industry standards for testing food image recognition.
+
+ImageNet is a standard dataset for images with many classes, including food. It looked like it could work, but then I realized there was a problem. The image model we're using, ResNet vectors, is trained using ImageNet data. Testing performance on training data gives high but meaningless metrics—a self-fulfilling prophecy, dangerous to take as truth.
+
+What about other image models like CLIP, the OpenAI joint text-image embedding model? It's been iterated on to have good metrics on ImageNet. Again, not something I can use and trust for building my own evaluation.
+
+Can I create a benchmark? What would it take? This one-afternoon task became a sprint-long challenge. I found a dataset called "A Multi-layer Hierarchy of Natural User-generated Images by Classon et al." It had food items images taken in grocery store aisles, offering some insight into our model's performance for this customer use case.
+
+The dataset wasn't structured; it was a folder with images and some metadata. I structured the data to write tests for these labels, which were my key insight: any labeled dataset can be a benchmark. This project reinforced that understanding.
+
+Structuring the dataset means defining categories like Granny Smith apples in subcategories, and the top category is a fruit. Adding all of the metadata allows flexibility for future uses of this benchmark, which is valuable.
+
+The next step is to evaluate our algorithm. The customer's question was about the quality of recommendations. They care about precision over recall; they want accurate results even if it means fewer results. We want to check if the top category, subcategory, and even product SKU match.
+
+We built a script that checked if our API recommendations matched these criteria. For inappropriate hits, I noted the no-match rate. This evaluation gives insights into the model's strengths and weaknesses, which weren't initially apparent.
+
+We used our benchmark to evaluate the impact of replacing ResNet vectors with CLIP. Although CLIP is popular, our findings showed no significant advantage in our context. Sometimes CLIP performed worse due to engineering challenges we faced, like instability.
+
+These evaluations can highlight strengths and weaknesses. Humans, even experts, can have incorrect assumptions about systems that benchmarks can help clarify.
+
+Real-world learning occurred with differentiated items like boxed soy milk, which resulted in accurate and precise recommendations up to Alpro product-level specifics. This indicates strong labeling signals, contrary to assumptions about package recognition difficulty.
+
+When recommendations suggest TV models as ovens, it's because they are often placed in similar kitchen contexts in images. These seemingly different items have a context-driven similarity which our models pick up.
+
+Remember that benchmark results must focus on answering practical customer questions rather than just getting numbers. The clarity in understanding the problem can help communicate results in relatable terms. Technical and non-technical stakeholders need tailored messaging.
+
+For technical audiences, share hands-on knowledge and limitations of the model. Non-technical audiences need usable talking points, indicating core strengths without drowning them in details.
+
+Internal discussions should focus on areas for improvement, sharing insights on difficult cases for iterative progress. External communication should highlight confident use cases for customers to trust the system today.
+
+**Audience Member 1:**
+
+I was wondering if you can use similar benchmarking methods for other use cases, like a DIY store?
+
+**Paul-Louis Nech:**
+
+Yes, that's correct. We should aim to build benchmarks for diverse verticals relevant to our customers, ensuring internal visibility. It’s crucial for systems serving varied customer needs.
+
+**Audience Member 2:**
+
+You mentioned zero results, which Vector search usually avoids. How do you handle zero results?
+
+**Paul-Louis Nech:**
+
+Great question. We include a default similarity threshold to prevent poor suggestions. A no-result page can redirect users to relevant content, making it a user experience opportunity. Depending on the use case, a thoughtful no-result experience is valuable.
+
+**Audience Member 3:**
+
+Why groceries? It seems like a less-obvious use case for image recommendations.
+
+**Paul-Louis Nech:**
+
+You're right, it isn't an obvious first choice. But some businesses lack consistent user interaction data or structured text information. Image recommendations are valuable where text data is variable—in B2B or C2C marketplaces, for example. 
+
+Image signals are essential where product metadata can be inconsistent. In cases with less consistent data, images can provide clarity. Let’s thank our speaker!

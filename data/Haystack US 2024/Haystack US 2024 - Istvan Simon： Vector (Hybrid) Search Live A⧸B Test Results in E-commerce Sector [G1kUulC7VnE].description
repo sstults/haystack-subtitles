@@ -1,0 +1,21 @@
+We have statistically significant A/B test results for our Vector (Hybrid) Search for 2 of our large DIY retail clients E-commerce website.
+
+This was a 50-50 user split A/B test. The 2 variants were:
+
+    Prefixbox’s existing, manually-optimized Search Engine
+    Prefixbox’s Vector (Hybrid) Search
+
+Results from 1 of the tests are the following: 21% revenue increase for search users 12% increase in transactions for search users 17% increase revenue for overall site visitors 11% increase in transactions overall site visitors 5.7% increase in SERP clicks
+
+We are using ElasticSearch both for keyword and vector search. We use OpenAI’s embeddings.
+
+In this talk, we are going to explain:
+
+    how we create the embeddings for the products and the search query
+    how we blend the keyword and vector search results
+    and the results of the live A/B tests
+    show live search examples
+
+Istvan Simon is the CEO and founder of Prefixbox, an AI-powered E-commerce site search solution. While working on Bing at Microsoft London, he was inspired to build a service that would help retailers optimize their online stores, and thus Prefixbox was born 10 years ago. With more than 20 years of technical experience, he brings the ground-breaking ideas that make Prefixbox so powerful.
+
+Haystack US 2024 brought to you by OpenSource Connections, Experts in Search & AI, offering consulting, training and specialist staffing - talk to us about your search & AI project at https://www.opensourceconnections.com .

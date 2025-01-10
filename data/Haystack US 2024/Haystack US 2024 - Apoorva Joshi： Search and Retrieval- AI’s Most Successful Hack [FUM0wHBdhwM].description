@@ -1,0 +1,13 @@
+Search and information retrieval systems have long embraced AI and Machine Learning to improve efficiency and relevance, but the converse hasn’t been true until recently. And this is no surprise. Before we started using Generative AI models for everything, we were mostly building specialized models, trained on specific datasets, to solve specific problems. If we are to now use the same model for different tasks, we need to present the model with the most relevant data for the task at hand. Some might call this Retrieval Augmented Generation (RAG), but really it’s a good old recommender system (RecSys) for large language models (LLMs) instead of humans.
+
+The core concepts involved in building recommender systems are the following:
+
+    Retrieval: Retrieving candidates from a catalog that are most relevant to the user query
+    Filtering: Filtering irrelevant items
+    Ranking: Ranking retrieved candidates in order of relevance to the user query
+
+In this talk, we will dive deep into Hybrid Search, a commonly used retrieval technique in RAG systems, and how combining it with metadata filtering and re-ranking algorithms results in a scalable recommender system for LLMs a.k.a. RAG.
+
+Apoorva is a Data Scientist turned Developer Advocate, with 6 years of experience applying Machine Learning to problems in Cybersecurity, including phishing detection, malware protection, and entity behavior analytics. As an AI Developer Advocate at MongoDB, she now helps developers be successful at building AI applications via written content and workshops.
+
+Haystack US 2024 brought to you by OpenSource Connections, Experts in Search & AI, offering consulting, training and specialist staffing - talk to us about your search & AI project at https://www.opensourceconnections.com .

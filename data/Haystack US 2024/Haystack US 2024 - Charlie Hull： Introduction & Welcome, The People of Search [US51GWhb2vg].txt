@@ -1,0 +1,55 @@
+**Host:**
+
+Welcome to Charlottesville for another Haystack US conference. My name is Charlie Hull, and I am from OpenSource Connections. We host and run Haystack, and have been doing so since 2018. I'm going to give you a quick introduction on how it's all going to work, including logistics and a little introductory talk, and then we'll move on to our main program. OpenSource Connections isn't just me—this isn't the whole team as some of our European colleagues couldn't join us this week. Our offices are in Charlottesville, where the company was founded, Berlin, Germany, and I am based in Cambridge, UK. We have clients across the world, and this year we're focusing on understanding and delighting users to give them a great experience, hardcore search and AI engineering, and thinking about people and processes for search improvement.
+
+These lovely people here are my colleagues, and they are all here today. If you have any questions about Charlottesville, the event, or anything else, please reach out to them. They will have a blue sticker on their badges so you should be able to identify them.
+
+So how's it going to work this week? Today, we have two tracks of talks. This is our main theater, Theater 5, and we also have Theater 7, which is halfway down the hall. The talks go on until approximately 5:30 p.m., with 15-minute breaks between them to give you a chance to chat, grab coffee, get to know each other, and move between the rooms.
+
+We have about 150 people signed up online, so let's make a big noise for our online participants. Excellent! From 12:30 to 2 p.m., we have lunch, and it's at your own discretion. The downtown mall here in Charlottesville is a beautiful pedestrianized walkway with restaurants, cafes, sandwich shops—you name it. Find some friends and go grab lunch; you have an hour and a half there. I might drop some recommended restaurants into Slack later, but honestly, everywhere's pretty good around here.
+
+At 4 p.m., we're going to have some lightning talks. If you've got an idea for a five-minute talk about a cool project or a crazy idea you want to bring to people's attention, please direct message me in Relevance Slack. We're organizing that during the day, and you can find general information about the event and any last-minute changes in the Haystack conference channel in Relevance Slack. If you have questions, drop them in there, and we’ll try our best to answer them.
+
+After today’s events, around 5:45, we’ll be heading over to Cardinal Hall, about a 10-minute walk up the hill. We’ve got a drinks reception and a buffet dinner organized for everybody. We'll be outside in a sort of tented area, but there’ll be people to guide you so you won’t get lost.
+
+A few logistical points: Bathrooms should be obvious, with some just back toward the area and others downstairs. If you’re a speaker, please come to the front before your talk to introduce yourself to our AV team and the room host. There’s no C host in each room, but someone will handle questions after your talk with a microphone. Our online participants are asking questions via Zoom chat, which will be mixed with live audience questions.
+
+If you’ve emailed me about an interview, this is for speakers only. After your talk, please come to the front; there's a camera ready for a quick chat about what you think is exciting in the world of search today. We hope this experiment works, so please come to this room even if you were in the other one.
+
+Please try not to hang around in the doorways, as blocking entrances could be inconvenient. You can use the upstairs lounge for chats; there are plug sockets available there. Wi-Fi information should be available on bits of paper around the venue. If you’re on social media, use the #HaystackCon hashtag; it's great to see what people think of the event, and photos are especially welcome. 
+
+Speakers, please send your slides to David Fischer so we can upload them to the website. All recordings and slides will be available after the event. As attendees, you’ll get early access before it becomes public. Lastly, please silence your phones since this is a movie theater, after all.
+
+Now that we've got the logistics out of the way, tomorrow we have another two tracks of talks. The first one is a joint talk between OpenSource Connections and our client Moody's on enabling AI-powered products. We’ll have lunch a bit earlier tomorrow at 12 p.m. Our regular Women of Search slot will be at 1:30 p.m., just after lunch, which I'm really looking forward to. We have our Birds of Feather dinners, sponsored by Elastic, Pinecone, and OpenSource Connections. Hopefully, you’ve signed up for one if you're around tomorrow evening, but there may still be some space left.
+
+On Thursday, we have the Getting Started with Search Workshop led by David Fischer, which has completely sold out. It's taking place at the Omni Hotel at the downtown mall. For others, we're doing a Search Hack Day at the OC offices; many people are signed up for this, and it should be a great experience to work with top names in search.
+
+Thank you to everyone who submitted a talk and is speaking today and tomorrow. Haystack wouldn’t be great without talks, and we appreciate the effort you put into preparing them. Thanks again to my colleague David Fischer for handling the call for papers process. We keep this as anonymous as possible to ensure the best talks come through, even for OC people.
+
+Now onto something thematic for my talk today, themed around people. You might think that AI is going to replace us all, but software is written by people. I'd like to talk briefly about those people in our search community. We say we stand on the shoulders of giants, and I've been lucky to meet and work with amazing search people like Stephen Robertson, one of the pioneers of BM25, and Martin Porter, author of the famous Porter Stemmer.
+
+I've also had the pleasure of knowing Martin White, who started the Search Network, and the authors of the "Relevant Search" book, Doug Turnbull and John Berryman. I'm excited to hear that Trey Grainger's "AI-Powered Search" book is nearly ready for publication. There's also Joe Christian Bergen from Weaviate, who shares deeply argued mathematical explanations about search and AI.
+
+We cannot forget the developers from places like Weaviate, Pinecone, Elasticsearch, and OpenAI, who are everywhere at conferences, telling us about new developments and sharing example codes. Their energy is astonishing, and we greatly appreciate their work in pushing boundaries. Unfortunately, we also lose people, such as Simon Hughes, a great contributor to Haystack, who we sadly lost last year.
+
+To memorialize Simon, in collaboration with Vectara, we came up with the Hughes Scholarship. The idea is to support those who might not have otherwise been able to attend Haystack US or Europe by covering costs like the ticket price and travel. Also, qualifying recipients receive places in OC training courses and credits on Vectara's SaaS platform. This year, we had 13 fantastic applicants judged on financial need, learning need, and ambition in Search and AI. My fellow judges were Ammi Ahmad of Vectara and Erika Cardenas of WEO, who helped with the judging process. It was sponsored by Vectara, and I'm happy to announce our winners this year are Maya Ziv and Yuval Morari, both present here today. Unfortunately, Habeeb Shapoor, who was placed first, couldn't get a visa in time but is joining us online. This gesture serves as a memorial to our friend Simon, and we hope it continues.
+
+Speaking of people, Relevance Slack, which started with a small group of about 50 attendees from a Haystack conference, has now grown immensely. Particularly during the pandemic, it served as an invaluable resource to keep us connected. Thank you to everyone who contributed, whether by answering questions, suggesting useful information, or posting job opportunities. I'm pleased to announce that we've recently reached 5,000 members on Relevance Slack. Congratulations to Paul L., the 5000th member! Long may it continue as a place to connect between conferences.
+
+Another aspect of Relevance Slack is the Women of Search group, started in 2022 by women working in the sector to address gender imbalance. They provide opportunities for mutual support, mentorship, and guidance to help others give their first conference talk. I'm grateful to Anitta Arora and Audrey, who you'll hear from tomorrow, for their efforts. We have a dinner on Wednesday, sponsored by Pinecone, focusing on celebrating women of search. All are welcome, as allies play an important role.
+
+Lastly, I couldn't talk about people without mentioning my OC colleagues—John Woodell, the cider-maker and musician; Rene Keller, the linguist and Berlin tour guide; David Fischer, the educator; Scott Stoll, reluctant skier and co-founder; Raj Rajan from New York; and Jennifer, the financial controller. Though not present today, I must mention Daniel Ridley, who competes in pistol shooting, and Matthias Krueger. I'm lucky to be part of this team.
+
+What about your search team? How you work together is vital. Relevance engineers, search product owners, and even those who don't consider themselves part of the search team, like content authors and UX designers, are all important. The search community has grown to include newcomers from AI and data science. The largest search teams, such as Otto and Home Depot, face unique challenges in communication and collaboration. At OC, we strive to help make search teams more efficient and effective.
+
+Those who are part of small search teams or working alone, know that we're here for you. By attending this event, you've chosen to share knowledge and push the state of the art forward. Take care of your people, and they'll take care of the rest.
+
+Thank you for joining us. We will have a break now, and our first set of scheduled talks will start at a quarter to the hour. Please check your schedules, as they're also posted on the doors. I hope you have a wonderful Haystack, and I look forward to meeting as many of you as I can. Welcome to Haystack, and have a fantastic week!
+
+**Audience Member (Q&A Session):**
+
+What advice would you give to someone new to the industry about where they should focus their learning in search and AI?
+
+**Charlie Hull:**
+
+Great question! My advice would be to start by understanding search fundamentals: how search engines work, indexing, and retrieval processes. Focus on learning the tools of the trade, such as Elasticsearch or Solr, and understand their strengths and tradeoffs. It's also crucial to get hands-on experience, work on projects or join hackathons like our Search Hack Day. Keep abreast of AI's role in search, as AI-powered search continues to grow in importance. Lastly, connect with the community through platforms like Relevance Slack, where you can learn from experienced professionals and stay updated on developments in the field.

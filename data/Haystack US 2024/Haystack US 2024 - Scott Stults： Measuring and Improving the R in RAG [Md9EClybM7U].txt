@@ -1,0 +1,87 @@
+**Host:**
+All right, what a day! Keep your energy levels up. We've got one last talk, and I'm super excited about it. So, yeah, so my colleague Scott, thank you so much for jumping in last minute to give this talk. Scott gave this talk at our local Charlottesville Data Science Meetup just a week ago. That was its first version, so it's nice to be able to give the talk again. And he's going to be talking about the R in RAG, so really excited to have Scott share some of the research and work that he's been doing. I don't know what else you need from your hype man—so that's good enough. All right, terrific! Scott, bring us home.
+
+**Scott Stults:**
+So, I think we've had an earful this week, these past two days, about what the problem is. I'm going to touch on it briefly just to get the juices flowing, then talk about measuring it, and finally, how do we deal with it? On the right, I did a quick search for "spectacular fails for ChatGPT," and there's a nice list of them over on Medium. The reason why we do Retrieval Augmented Generation (RAG) is because obviously the LLMs need some help; they're pretty limited on their own. If we get the retrieval part wrong, we're going to get wrong answers. It's going to spit out what it's looking at, and it might not give us the complete answer that we need. That has a bad effect on the perception of how well we're doing for the end user.
+
+On the right are some more fails; I like collecting these. We've seen several different diagrams. This is not any one particular RAG diagram or our recommended RAG diagram, but these are some of the components that are common in RAG architecture. The reason I brought it up is that anybody who's built any kind of system of more than two components realizes that complexity expands exponentially with every little arrow going to another box. If you can see, there are little notepads where we're doing logging and little locks for where we have access controls. These are spots that are the trouble areas. Obviously, everything else can fail, but these particular spots are specific to RAG.
+
+Now in general, when I'm talking about it, this is already a problem everyone recognizes and there are some solutions out there meant to address it. Traceability—some of these products are meant for really instrumenting a RAG system. The problem from my perspective for what I need is that these are lagging metrics. I need to operate a little bit earlier in the stack. The other problem with tagging something on at the very end is if you're in that tight little loop of experimentation, changing things, measuring it, and seeing how things are doing, you've got to run through all of your queries again and call your LLM again to come up with those measurements. That's slow. I think there was a question earlier today on how to speed up the answers I'm getting or the responses from the LLM. If you're only looking at it from the outside in, the problems that you see are very hard to debug. You want to get in and look at every one of those junctions and say, "All right, there's a problem here. This part of my stack is working well."
+
+I've labeled a couple of these, and hopefully, you get excited about the particular ones I've chosen to highlight here. These are good ones to sell for us because just to explain, so missed the box above, that's not very interesting. We don't have content in our index? Well, get it in there, index it. The stuff I was talking about later, we're not really interested in that, but we can have a dramatic effect on this R part here. That's the two red boxes with the arrows; those are the ones we can have the most dramatic effect on. As it turns out, it's kind of the limiting factor and the greatest contribution to quality of the end result is the context that you're giving the LLM to work with, to begin with.
+
+There are a couple of terms up here, and thankfully everyone here came for the search aspects of these. Just for completeness, the definitions that I'll be using for precision and recall—data scientists might use these terms in a different context, but this is exactly what I mean. As information retrieval practitioners, we have processes and metrics in place already to measure these and talk about them clearly.
+
+One problem we've always had, and probably still have for a few more months is that there's always been this notion of "all relevant." There was a question earlier about how do we know what a relevant document is. Even more stickily is that when you look at some of the academic documentation on how they evaluate relevance, it's about how well this particular query is relevant to every single document in your corpus in order to say whether or not you've returned every relevant document. You have to compare it. That's hard. We have some little steps. Hopefully, the little graphic here is familiar by now. Quepid.com human measurements are still the gold standard according to TR, according to everybody, according to me. Human judgments are what we're aiming for. We're aiming to please humans no matter how many machines stand between us and the search engine. That's what we're shooting for.
+
+The problem is that getting someone to sit down and look at every search result for every query or your top queries is expensive. It's also incomplete. Every time you index a new document, you're getting new stuff in your index. The kinds of queries you see on your site—there are trends; they come and go. Your data is not static. The problem gets even harder when you're dealing in an expert domain, dealing with documents you yourself don't understand. I've worked on a couple of different systems where I personally couldn't judge the relevance. I had no idea whether a particular legal document was answering the information need of the person asking the question. There are other areas like AI for example. I'm not an expert. I don't know if a particular archive paper will address someone's convolutional network query. I don't know, and I'm not a finance expert. I don't know anything about credit ratings or how they happen. I can't answer those questions. The people on your team are developers, right? Team collaboration is more difficult when you can't share that knowledge, when even explaining once that this document is relevant to this query is a challenge. You'd have to explain a whole field of knowledge. You'd have to create a parallel on your team to understand all of that relevance.
+
+We turn to AI to help us out with this. Hopefully, I can build an AI to take my job. I heard two weeks ago, Charlie Hall was at SIG in Europe, and I heard the phrase "aluminium standard" instead of the gold standard. These would be artificially generated judgments on query-do pairs. Definitely less expensive, even with the most expensive model you have. Human time is still more expensive. You can have this eventually complete—it depends on how much you want to spend on it, how quickly you want to generate these things. You could probably generate these evaluations as fast as you're indexing new documents and creating new queries.
+
+There's still a challenge in that if you're not explicit about your guidelines for creating these evaluations, you can generate different judgments using the exact same reasoning for the same query-do pair. I'm going to give this a three—well, when I ran it last time, you gave it a two and said exactly the same justification for it. Lastly, LLMs have been trained on the sum of all human knowledge, right? Everything published online. I think there's sort of a return to the mean on intelligence; it's collected all of Wikipedia and Stack Overflow comments. It doesn't really know which opinion it should voice on any particular thing. So, even though they're kind of smart, they're not an expert. They're probably not an expert in your data, so let's build an expert AI for this purpose.
+
+This is sort of my roadmap. We'll start with some human judgments; we'll get some experts that understand the queries and the corpus. We'll also get some professionals who can understand the words being said and judge these documents. What we'll do is find cases where expertise shows. Cases where the human gave it a one and the expert gave it a zero. We want to find those slight disagreements and then we'll ask the LLM to reason through that in its own words because it's hard enough to get experts to write down, let alone type out a paragraph. Then once we have that collected for these hard negatives, we'll combine them, and hopefully, all this together—the reasoning it's come up with will be enough in context to judge new documents more like an expert.
+
+This is a description of how we did that. The graph on the right is a histogram of the four humans that we asked to judge roughly 200 query-do pairs. I'm not going to build suspense—the black line is the LLM. We called her Judge Judy. You'll see that Judge Judy is kind of unopinionated about things, out of the box with a very vanilla prompt. She's optimistic like, "I can see why this might be relevant, why it might not be relevant. I'll go ahead and give it a one." We looked for areas where the experts disagreed with the non-experts by one degree and generated those explanations using a different prompt.
+
+Then something like this, you know, act as a judge, looking at these fields as the document appears. All this stuff is going into the context that we're providing for this sort of meta-task. This isn’t quite getting down to the point where we're judging documents, we’re building an AI to build another one. As a concrete example, on the left are documents that might be returned for a Star Wars query. The ranking given by the out-of-the-box AI said, "You know what, Episode One? That's barely relevant. That's the worst one. Nobody's ever going to want to see that." Then a movie critic AI comes in and says, "Look, the expert disagreed and gave it a two. Explain why," and this is an explanation you might get out of that. This is what we would put in the context as we're going along and judging new documents.
+
+With all these explanations, all these examples of disagreement, and the LLM's own words on why these disagreements happened, we sampled those. Now with these ever-expanding contexts, maybe we could have just shoved them all in as learning parameters, but my intuition many months ago was that we needed to find a small set of examples that gets the LLM talking like an expert, not thinking like an expert. I have all these examples, and I used Bayesian optimization to optimize Cohen's Kappa, which measures how much two raters agree with each other, discounting the chance that they might just agree by chance. We had three categories for judgment, normalizing for the odds of random agreement.
+
+We picked a few examples, yes, and you remember the histogram with the experts and non-experts? We were able to make the judgments the LLM was coming up with more in agreement with an expert than with non-experts. In fact, I narrowed it down to a specific expert and got my agreement score more in line with that expert than those two experts agreed with each other. The benefit is that when we look back at precision and recall and ask if we got relevant documents in our context, we can have more confidence that an expert will also agree with the context we've provided.
+
+The testing that we do is cheaper, faster, and mostly offline. The judgments can be cached. We saw a presentation earlier about caching more expensive things. We only need to look at a query-do pair once in a particular example. If we adjust our chunk size, change the LLM, or do other things, we might need to refresh the whole cache, but generally, we can iterate faster with these metrics. Most importantly, the person with the telescope looking at how we're generating things, those metrics are better. We got positive feedback; their evaluation of our job improved. Obviously, the end goal is happier customers.
+
+Just to summarize, better in-context results that we give to the end LLM when generating responses will result in better text, right? Improving context means we have to have good judgments and confidence in those judgments. We’ll tweak things and might get irrelevant results, but we can know about that during experiments. If we're careful and spend time on it, we can get an LLM to judge better than a stock LLM and more like an expert. This allows us to try new things on the retrieval side, adjust recency boosts, get better documents at the top. The image I have shows that ideally, we'd love to get Judy into Cupid. If you've worked with Cupid, one thing you'll see if you change boosts or index new things and lack ratings is a little frog there. You get a frog pond report for documents returned by queries that don't have ratings. The idea is to eliminate the frogs. This pull request would let Judge Judy fill in the Frog Pond.
+
+Thank you. I guess we're doing QR codes, so this presentation is available through that QR code. Also, OSC’s hiring. The last point I want to make is that in side conversations, a question came up about who constitutes an expert. Why do they get to judge? My answer is that person was hired for that role; the end users, the people who subscribe to that service, go to that site for that expertise. In general, when you say expert, it could be something like being a reluctant expert in automobile troubles with a late-model Jetta, as I am right now. In fashion, you might find someone who's a shoe aficionado. You can pick and choose the kinds of documents and tailor your prompt to a different kind of expert for those circumstances. Anyway, I just wanted to drop that last part in.
+
+**Audience Member:**
+Thank you. All right, let me go—am I on? Yep, okay. Let me go ahead—I have an online question. Was this done with the intention to automate the judgment process?
+
+**Scott Stults:**
+Absolutely!
+
+**Audience Member:**
+And then a quick follow-on question, could this be used for training an LTR model?
+
+**Host:**
+Yes, I guess my thought on that one is if your measurement tool is also your optimization tool, you may be very successful without actually being successful, right?
+
+**Scott Stults:**
+Yeah, absolutely. And there's another thing that came up in a paper earlier this year where when an LLM is asked to evaluate text generated by another LLM, it’s very positive in its approval. There’s a danger in having a feedback loop between those two things.
+
+**Audience Member:**
+Can you help clarify the intuition around the use of the non-expert with the expert comparison? If you have expert judgment, you’d use that as training data, so what's the non-expert judgment giving you?
+
+**Audience Member:**
+Absolutely. I'll say I haven't tried it without the non-experts. I came at this with the idea to do both. The reason is that what's important is the explanation of why the non-expert and expert disagree. I could ask an expert or LM to write an explanation for the judgment, but you might encounter the same danger—it being beyond understanding. You need someone to dumb it down. Does that make sense?
+
+**Audience Member:**
+Isn't that saying the non-expert is eliminating false positives and false negatives?
+
+**Scott Stults:**
+Kind of, yeah. I also didn't try beyond hard negatives. There are lots of other things to try, like expanding examples or asking for contrastive explanations. I haven't done verbatim comments on why they rated like that. My process is when I have judgments with large disagreement, my prompt to the LLM is to explain the difference.
+
+**Audience Member:**
+That's right. So when you had those judgments where there was large disagreement, your prompt to the LLM was to explain the difference. On what basis was it doing that?
+
+**Scott Stults:**
+Both were given the judgment instructions, the manual we gave to humans: "This is how you grade IR relevance on these pairs." I tried making it clear that a non-expert gave this pair a one, but an expert gave it a zero. Explain why this is.
+
+**Audience Member:**
+Yes, this is a really encouraging and enlightening talk. I had a question about how these are reintegrated. You mentioned using explanations from the LLM, maybe integrating it in the prompt, whether retraining or fine-tuning.How are you integrating that?
+
+**Scott Stults:**
+No, these are just more in-context examples for creating these judgments. At the end, I had four examples when the expert disagreed with the non-expert, with a clear explanation allowing the LLM to judge the rest of my query-doc pairs like an expert.
+
+**Audience Member:**
+Oh, so just for that term or query basically? Thank you. I've got an online question from Alexandra. Does it make sense to do a majority vote between different LLM models?
+
+**Scott Stults:**
+Yeah, and I think that even ties into the other part about different flavors of experts. We could use ensemble models. If we get agreement with an expert, that's good enough. If we aim for superhuman grading, we're aiming for agreement with experts, potentially raising the Cohen Kappa or using other agreement measures for multiple raters, having different judges weigh in.
+
+**Host:**
+All right, terrific! Can we get a round of applause for Scott? Thank you for pitching in.
+
+[Applause]

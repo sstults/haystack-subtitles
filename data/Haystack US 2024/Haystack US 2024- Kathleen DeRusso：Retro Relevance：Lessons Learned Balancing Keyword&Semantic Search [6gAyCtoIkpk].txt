@@ -1,0 +1,55 @@
+**Host:**
+
+Our next speaker is Kathleen DeRusso. I will let her introduce herself. The floor is yours.
+
+**Kathleen DeRusso:**
+
+Hi, my name is Kathleen DeRusso, and I'm here to discuss some of the lessons that we've learned when balancing keyword and semantic search in these hybrid search use cases. The theme of my talk is called retro relevance because I'm not really going to be talking about new concepts—a lot of them have been around for years, if not decades. They're just ideas that are still relevant now and maybe they're coming back into vogue a little bit. It wouldn't be a metaphor for retro without a nod to fashion because, you know, there are some things that should definitely stay in the past, like powdered wigs, but other retro ideas like bell-bottom jeans come back into fashion. We update them, improve them a little bit, put a new spin on them, rebrand them with a different name, but they're the same concept and they work really well.
+
+Semantic search has really revolutionized how we approach information retrieval using natural language processing and semantic intent. However, there are definitely challenges. It's a new and evolving field, and hybrid search and the tooling surrounding BM25 text search help us solve a lot of these challenges. A lot of the tools that I'll be talking about are like those bell-bottom jeans—they're never going to go out of style. They work, they can help us overcome a lot of challenges, they can make our search experiences better, and they can save us time. I'm going to list some of those traditional tools and building blocks, things that have always worked to make lexical search better. If you've tuned tech search in the past, a lot of this is going to feel familiar—might be old hat—but if you're coming into this field new from data science, AI, or machine learning, some of these might be new concepts to you.
+
+We’re going to talk about the challenges we face today with semantic search and how hybrid search really is the best of both worlds. We'll highlight some tools in that relevance toolbox that help us here. Our goal is to make high-quality search results as simple and, most importantly, low effort as possible. None of us want to go back to painstakingly tuning single weights here and there. It's a lot of work, so we aim to make search and the application of things like business rules seamless and hands-off if we can or as hands-off as possible for practitioners. Our focus is on enhancing semantic and hybrid search.
+
+Before I start, who am I and why am I here talking to you? I'm a software engineer with years of application search experience. I started off in a B2B space, doing mostly lexical search, with lots of filters and business rules on things like electronic part numbers where one character makes a huge difference. Later, I worked in the SaaS space, where it wasn't a search company but we used Elasticsearch for really cool use cases like backing up SaaS data from Microsoft 365 or G Suite and searching that metadata within specific backup windows to find that one email you deleted. Today, I'm at Elastic on the search relevance team here, and it's a fantastic place to work. I’ve been a big fan of Elasticsearch since 2014. The examples I’ll be using are all from Elasticsearch, but many of the general concepts should translate even if you're not using Elasticsearch, even if the implementations might look a little different.
+
+Quick refresher on text search: this is the text search we all know and love. You're taking text, translating it, parsing it, turning it into keywords, analyzing it, creating inverted document lists—this is how tech search has worked for decades. There are tried and tested algorithms such as TF-IDF and BM25. Starting with TF-IDF, term frequency over inverse document frequency shows how important a keyword in a document or a corpus is, heavily used from 1972. When The Godfather was introduced in theaters, VCRs were introduced, and Pong was an arcade game. After TF-IDF, we moved to BM25 in 1994 with advanced improvements like document length normalization and frequency saturation. BM25 is heavily used today, synonymously known as tech search. While it pains me to think of the '90s as retro, BM25 is as old as Forrest Gump or when we were collecting Beanie Babies. It’s been around for a while.
+
+This technology comes with a robust toolbox—analyzers and tokenizers pre-process text before searching. You have functionalities like whitespace tokenization, punctuation handling, stop-word removal (not as used today), case normalization, stemming, and lemmatization. Filters, field weighting, and boosts allow for structured data filtration, isolating specific content like author, genre, or publication date. Boosts go from titles being more important than descriptions to sophisticated ones like geo-distance or popularity.
+
+Re-ranking strategies such as learning to rank, personalization, contextual re-ranking, and semantic re-ranking are essential. Synonyms for slang and domain-specific jargon are crucial for semantic search models that might not handle them well. Business rules encompass many custom rules, and some common use cases include ensuring diverse result sets or targeting ads based on query results or personalization factors. While not always aligned with relevance, combining business rules with relevance is necessary—you know, they pay the bills and might be contractually obligatory.
+
+Quick refresher on semantic search: we take text strings, translate them into embedding models as arrays of floating-point numbers (dense vectors), and search on these using approximate nearest neighbor (ANN) or brute-force KNN searches. Alternately, we use learned sparse retriever models to expand original text. Vectors can be utilized beyond traditional search retrieval, including personalization or summarization. They are useful for scoring or filtering, aligning with semantic and final re-ranking. Reranking is invaluable when models don't immediately return the right answer, providing a critical tool, especially when not getting the top result.
+
+**Audience Member:**
+
+We have time for a few questions. Are there any?
+
+Audience Member 1: Great talk, thank you very much. This is kind of going to be an Elasticsearch-specific question, but one of the things that have been interesting is RRF and Elastic’s new movement into LTR. With e-commerce, we face issues with product variants and not wanting to show the same variant of a single product right next to each other in search results. Handling this with either nested documents or parent-child relationships is possible, but we’ve been interested in field collapse. Field collapse seems almost behind a little bit, lacking support for RRF or LTR. I'm curious about the future of field collapse and its support with these new features.
+
+Kathleen DeRusso: Great question. I'm going to be honest—I'm not 100% sure about the product roadmap with field collapse. My colleague Maya answered this for the people in the audience. Maya mentioned that while this isn't currently supported, feedback like yours is valuable. You can add an issue to our GitHub repo to get some community engagement and traction. We also have community Slack and discussion forums for suggestions.
+
+Audience Member 2: You mentioned earlier in the talk that embeddings can be used for personalization and summarization. Can you please explain how in two sentences or less?
+
+Kathleen DeRusso: In two sentences or less, they can't—it's not natively supported in Elasticsearch. If I’m restricted to two sentences or less, I’ll say use models and use microservices.
+
+Audience Member 3: During the query rules section, you mentioned it currently only supports pin queries or pin documents. Are there plans to expand that to include custom sorts or function scores?
+
+Kathleen DeRusso: We're actively discussing many functionalities with the product team. This is the perfect time to open issues or engage with us to discuss the roadmap. If there are specific things like script scoring that you want contextually rule-based, I’d love to hear more about it.
+
+Audience Member 4: In many search scenarios, BM25 search often returns more results than semantic search due to performance limitations. Any lessons on balancing and merging results?
+
+Kathleen DeRusso: It depends. With text expansion, you might get the opposite, with more vector results. When it’s difficult to tune, RRF should definitely be experimented with. It takes complexity away for merging results more seamlessly.
+
+Audience Member 5: I just want to note that since you were shameless about saying you’re hiring, I’ll mention that many things you’re talking about are also available in open source. For example, Quirky has a rules engine that’s been around for a couple of years, and we agree on RRF research and various tools out there for people to use.
+
+Audience Member 6: Have you faced situations where LTR or hybrid systems showed improvement in NDCG performance during model testing, but engagement-based metrics in AB tests don’t perform well? How do you re-evaluate this variant?
+
+Kathleen DeRusso: I don’t think we’re at that point yet, but we’ve been doing internal modification and optimization of hybrid search for use cases on our site. Experiments have shown hybrid search use from both semantic models and straight BM25 tech search gives the best results, currently merged into our codebase. Specific content and AB testing results are still to be fully evaluated and shared.
+
+Audience Member 7: Thanks for the talk. Two things—one, we actually asked you to open the collapse rescore feature, and it’s now on the roadmap. Two, regarding your slide on RRF where pagination isn’t trivial, how do you suggest paginating in that workflow?
+
+Kathleen DeRusso: The reason it’s not trivial is that, you know, getting the first 10 results, re-ranking works, but going to the second page often shifts results when re-ranked by RRF. The only way currently is to rerank the entire max result window. It's not ideal for performance, but retrievers will hopefully address this, making pagination better in the near future.
+
+**Host:**
+
+Let's thank our speaker again, and it's time for lunch.

@@ -1,0 +1,67 @@
+---
+
+**Host:**  
+Welcome back, everyone, and thank you for being on time. Welcome to our afternoon sessions. We have four interesting talks, and the first one is about the challenge of finding and retrieving unstructured information, an interesting challenge I've also struggled with myself. So, I'm really looking forward to this talk. Jo Kristian from Vespa.ai, I think, probably needs no introduction, being a search veteran. He is going to talk about how Vision Language Models help with that task, and he’ll be introducing ColPali to us. And now, the stage is yours.
+
+**Jo Kristian:**  
+Thank you very much. First of all, it's great to be here again at the Haystack Conference. It's a really great conference with a high signal-to-noise ratio. I'll talk about a topic that I'm very excited about and the pitch is "What you see is what you search," using Vision Language Models for PDF retrieval. I believe this is the future of retrieval. In this session, I'll introduce index and search for PDFs, and Vision Language Models, specifically about ColPali. I’m curious, how many of you have heard about ColPali before the talks this morning? A couple of hands, good. So, you will learn about ColPali today, and about scaling ColPali with retrieval-augmented generation using VLMs, and then we'll have a Q&A session and resources. If you want to jump to the slides, you can scan that.
+
+How many of you have tried to index PDFs? Quite a few, okay. This is quite a challenge. PDFs can be complex, with visual infographics, tables, charts, images, etc. When chatbots like ChatGPT started, interacting with PDFs was a primary use case because a lot of information in the world is within these PDFs. Historically, we used text extraction, then chunk text embedding, and so on. However, extracting text from these documents is tricky. Elements in PDFs might be embedded images, making text non-extractable. You might see text visually but not retrieve it during a search because it’s not extracted as text data. Managers might say they see the text, why can’t the search engine retrieve it? It's frustrating to explain that it's an embeddable image, and that makes a huge difference.
+
+This is where Vision Language Models come into play. These models allow us to bypass some of those text extraction challenges by embedding the entire PDF page. Using models like ColPali, which stands for 'col polygamma', we can utilize this multi-vector embedding effectively for retrieval. Traditionally, we used pipelines that included text extraction and complex processing steps. With ColPali, we simplify this by embedding each PDF page and generating multi-vector representations. This process provides better relevancy compared to traditional methods, which often involve complex preprocessing steps. I see ColPali as the future direction for document retrieval. It tackles complex formats and increases the universality for different types of file formats beyond text extractions, offering a broader support for diverse real-world documents found in the industry.
+
+Now, on to a quick primer about Vision Language Models (VLMs). These are multimodal models that learn from images and text simultaneously. They've become quite powerful over the year. Initially, they were used for fun things like identifying cat breeds in images. However, their potential extends far beyond that. For instance, the model Polygamma offers significant capabilities for OCR and embedding. It can answer complex questions by reading just the visual elements in a PDF, which is particularly beneficial for document retrieval.
+
+The researchers behind ColPali wondered if VLM capabilities could be extended from just understanding and answering questions about images to actually offering advanced and efficient document retrieval. Imagine searching through 100,000 PDFs efficiently without any preliminary text extraction. The goal is to streamline retrieval in real industrial settings where datasets aren't preprocessed like in some benchmarks. ColPali manages this by using contextualized embeddings based on VLMs, replacing steps like OCR and layout detection with a single step model embedding from a screenshot.
+
+---
+
+**Audience Member:**  
+Thank you very much for the inspiring talk. We have one question online relating to the retrieval of tabular data. The question is, how does ColPali keep the context of tabular data, especially longer tables having headings using small 32 by 32 image patches?
+
+**Jo Kristian:**   
+Yeah, this is more of a... Let’s see. This is the kind of data included in the ViDoRe Benchmark, right? These are divided into grids, and the quality of the training data for ColPali plays a significant role here. The pre-training step gives it OCR capabilities, allowing it to read and interpret text. Specific operating details sometimes seem like magic. But the model isn't better than its training data.
+
+**Audience Member:**  
+Thanks for the great talk, Jo. You mentioned techniques like removing vectors representing sparse or whitespace patches to reduce the number of vectors. Should this be done post-inference or is there another method?
+
+**Jo Kristian:**   
+That's a great question. Regardless of the appearance of the photo, during inferencing, you get a set number of vectors. The post-processing clustering approach removes similar vectors without retraining the model. This helps eliminate redundant vectors that just represent blank spaces, somewhat like reducing a dataset’s complexity.
+
+**Online Community:**  
+We have a couple of questions online about language-specific fine-tuning. Are you aware of a dataset for fine-tuning, say, for Spanish, or any fine-tunings for other languages like Norwegian or German?
+
+**Jo Kristian:**  
+The initializing snapshot for ColPali does have multilingual capabilities due to the multilingual nature of the text model used during training. However fine-tuning for better results specific to a language or domain would require a dataset dedicated to that language because models are initially trained in English. The direction we’re moving towards, using VLMs as underpinnings instead of solely text encoders, shows promise for expanding multilingual capabilities soon.
+
+**Audience Member:**  
+Have you seen any interesting approaches for handling contextualized information across different pages?
+
+**Jo Kristian:**  
+Yes, I wrote a blog post that tackled this idea, allowing for maxim calculations across all pages for insights. However, this function can be simplified for practical case applications by embedding pages as individual documents, and by aggregating to ascertain which pages hold the most relevance.
+
+**Audience Member:**  
+In real-world applications, how practical is it to use ColPali? For instance, how long does it take to generate embeddings per page?
+
+**Jo Kristian:**  
+Excellent question. On an M1 laptop, document-side inference runs for about 2.5 seconds per page. On the query side, the embedding process takes under 100 milliseconds with an M1 chip. One benefit of Vespa is efficient data retrieval and matching due to minimal vector data movement across networks, which scales well.
+
+**Audience Member:**  
+If handling a less complex PDF with mostly text, will ColPali outperform something simpler like ColBERT?
+
+**Jo Kristian:**  
+Great question. For text-heavy subsets, traditional methods like bm25 or ColBERT may perform comparably. While ColPali has the advantage across varied document types, if your data is structured and predominantly textual, traditional methods suffice. However, for complex documents like HTML or MS Word, ColPali's integration scope excels because it merges product title, descriptions, and images into joint representations, appealing especially for e-commerce scenarios.
+
+**Audience Member:**  
+Thanks for the talk, Jo. Regarding explainability, can ColPali identify what page elements are most relevant to user queries?
+
+**Jo Kristian:**  
+Yes, absolutely. MaxSim provides insight by highlighting patches most similar to query vectors. This feature offers interpretability by allowing you to identify which parts of a document are causing high relevance scores, contrasting the singular outputs of single vector models.
+
+**Audience Member:**  
+I don't want to be a firestarter, but how many search engines can accommodate this multi-vector late interaction method?
+
+**Jo Kristian:**  
+That's an interesting question. Currently, there are a few search engines that offer support for multi-vector representations. Among them are Quadrant, LanceDB, and of course Vespa with our tensor framework. The Lucene-based engines typically don’t support this currently, but there are discussions and issues raised around developing such capabilities.
+
+Thank you for all the questions. If you find me on Twitter, you can reach out there for more discussions. Fill up my timeline with questions, and thank you.

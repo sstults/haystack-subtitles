@@ -1,0 +1,111 @@
+**Host:**  
+I would like to congratulate the team from Reddit on their ability to pack a hall. They’re going to have to stand in the back; it’s an SRO (Standing Room Only) crowd. Welcome to the second talk. I already named their company. We have, now I've forgotten my names because I left my phone over there, Doug, Cliff, and Chris. Thank you, Chris, from Reddit, you may take it away.
+
+**Doug Turnbull:**  
+Hello. Oh, that works. Okay. Hi, everyone. I'm Doug, and that’s me on the left of the intro slide. You can find my stuff there, even my Reddit username if you want to DM me. But I'm softwaredoug everywhere. Chris is an infra guy on our team, and Cliff works on general backend development and helps us with all kinds of things in search. So, we're part of roughly the Search Relevance (SR) team at Reddit. And Chris confused me, it's his fault. Chris and I used to work together at Shopify. Today, we're going to talk about Learning to Rank (LTR) and really be upfront with a lot of our failures. We’re going to discuss how you do this at scale and how you add it to a system that is already mostly working at scale. Of course, at Reddit, we have thousands of queries per second, 19 years of posts. We have tons of data, so it's not trivial. Anytime we need to add something, it’s like steering a giant cruise liner away from things.
+
+Now let's talk a little bit about what Reddit content looks like. As you might imagine, we have a lot of text-heavy informational content. We do have a lot, but it's a bit different than just a normal question-answering setup. We also get a lot of the normal social network kind of searches. People come up and imagine that what we do is always “such and such Reddit,” like when people add Reddit to their Google search. We're not necessarily trying to replace that, but people use Reddit search in a different way. They use it to find out what's the latest on a topic, similar to how you might go to Twitter or whatever your favorite social network is to see what people are talking about. So, recency and popularity are very important.
+
+In this age of AI, Reddit is the anti-AI in many ways. It’s the subjectivity, the human experience—the specific human being's experience about something. Whereas if you go to ChatGPT, you're going to get a sort of generic Wikipedia tone of answer. But you get all the insanity of human beings on Reddit—a very long-tailed discussion about, for example, what headphones someone liked, or a person looking for help with their golden retriever. You get queries like mental health advice—“Why am I so sad?” It really ranges from all kinds of things. These are the problems we're trying to solve. There's lots we can do, combine text retrieval, social network responses, and recency. All these signals are really important to us, and this is sort of where we're headed—the first version of our machine learning search system, whatever we want to call it.
+
+I want to address a question I anticipate about Vector search, which is over to the right, but today we’re talking about LTR with lexical features, the boring old BM25 stuff. It’s not necessarily the cutting edge of what we're talking about these days, but it’s really important for us to get the fundamentals down for ranking. We're going to talk about Mr. ML Model, literally using emojis because I don’t believe in clip art anymore—emojis exist. Mr. ML Model wants to improve your search relevance. First, we need the right training data, like results of search results—what's relevant and what's not for these queries. Here’s KeyBridge and some labeled results. Are these any good? We need information to generalize, not just repeating training examples. It's about generalizing patterns—recognizing that if you see stuff resembling X, it is relevant; if not, it isn't. Modeling in ML space is really about generalizing patterns.
+
+We need all these features. What's the BM25 score of the title? Did the subreddit match the query? What’s the title match in the keyword like? A simple zero or one. How many hours ago was the post made? All these notions of things that go with relevance, there are all kinds of things to theorize about. Finally, the part we often take for granted is that somehow, we need to "yeet" it into production and rerank results. Of course, it’s not as easy as just “yeeting,” and we'll talk about that. We could easily have garbage in, garbage out. Think about the stuff on the left; we'll just get garbage on the right. The model won't be super smart if given rubbish examples. If we do amazing things, we can achieve amazing search results.
+
+It's not just about ML. I want to be very clear—people often mistake it with LTR, trying to run before they walk. I always view LTR as a forcing function for increasing the maturity of a team’s practices around these things. We have tools like Quepid—here’s the T-shirt to prove it—which is a manual relevance tuning tool. Through this LTR project, it's not just about making results by models, but about acquiring really good labeled evaluation data. We have notions that could improve relevance, and we can learn from our model and add it to our core retrieval and drive incremental experiments. It's often the experiments we found along the way of deploying an ML model that are some of the most significant things.
+
+I’m going to talk about training data, feature selection, a lot about getting models into production, and where we are now in this journey—our painful lessons and what’s next.
+
+For search benches, our offline evaluation tool—this is the graphic I share with the team all the time. The reasons we need to care about offline evaluation are foundational. There’s an actual model, but there’s a vast foundation of understanding what relevance means for our team—what features go with relevance. It’s just classic relevance work. We spent a lot of time ensuring our offline evaluation data and judgments—we label what’s relevant and not—align with good A/B tests because that’s what we’re training a model on. That’s really important. We spent a lot of time doing manual relevance work.
+
+One thing we did was get a partner to label search results for us initially. We got queries labeled, about 20 per query, sampled from the head and tail of our distribution. That, in itself, is useful as a test set, but more importantly, we learned a formula corresponding to the data we got. So, we take that data and say, “What does this correlate with in our analytics?” The thing that correlated most was what internally we call "Good Visit," which is really just a click plus dwell metric. We noticed things like clicks are useful, but there’s a position bias in our search results—things further down generally get clicked less. Primarily it was about the click plus dwell, and that made us feel good that someone outside’s labeled results matched what we use internally as a success metric.
+
+That became our judgment foundation—a formula blended together. We started using the judgments, shipped many A/B tests to see if results improved, and checked offline and online agreements. This is boring, not really ML, but I don’t care—it improves relevance and is informed by data. The model, for now, is hand-tuned but will eventually be tuned by machines. It’s essential foundational work for ML.
+
+Finally, if we felt good about our metrics going up with manual tuning, we could train a model and let it into production to see if online data agreed.
+
+One detail while working on training data was feature extraction. One trick with feature extraction in LTR, particularly if using engagement data, is this tendency towards bias in search results. Every feature for “KeyBridge,” for example, may be one because that’s what current search results show. For humans doing manual tuning, it's no problem, but a model sees all ones and has no negative examples. A key LTR trick, from the Wikipedia project and others, is literally to take a random set of other queries’ positive labels and treat them as negative for this one. This works because almost always, random documents from the index are irrelevant for a query. We sample, say 50, and slot them in. That helps our model learn.
+
+Our model can learn this pattern, no longer seeing these features as meaningless but relevant in this context. When doing LTR, you really have to look at feature balance. We’d start with our core features, right? The base retrieval ranking using Solr, by the way. We had to decide if a feature was good to add to the model. You can think of it in terms of retrieval: Will this add novel information? Stuff matching the title is often in the body—hence, not severely enriching for an ML model, but features like "votes" that don’t correlate to title score, provide a new signal to the model.
+
+We’d analyze features, ask if they truly contribute, and add them. When adding features, it’s critical when understanding that feature as part of ranking you’re optimizing, understanding the complexities of such statements. It’s nonlinear—a conditional branching situation, that's why often, you'll see tree-based models happen in this space. We're using Lambdamart loss, search online for my blog. We’re using a deep learning model with that loss function.
+
+With that brief tour, I’ll hand over to talk about getting things into production.
+
+**Cliff Chen:**  
+Awesome. Thanks, Doug. How do we get LTR at Reddit off the ground? We use Solr, so naturally, we considered Solr’s native LTR plugin for feature calculation and model inference to rerank the top N results. We also had the option of reranking outside Solr with Reddit's existing ML infrastructure. Our focus was on query-dependent features and the time horizon of content—main reasons for choosing Solr LTR. The configuration involves JSON specifying our feature store location and most importantly, what the feature syntax in Solr looks like. For the first pass, features like title BM25, comments count, and self-text match were chosen. For training, we logged queries for feature logging into Solr LTR cluster. Deployment was simply a config update rolled out to the cluster. For inference, we add a rerank parameter to our Solr query to invoke the LTR plugin. This directs Solr to rerank the top N results after retrieval.
+
+Let’s step back and see the whole system and testing. Here’s a simplified view of our query traffic flow. Our queue traffic goes through a microservice handling normalization, filters, and now reranking, then forwards the request to our Solr cluster. Before testing at scale, we answered the question: should we rerank in the same cluster as non-reranked production traffic? Using a single cluster was logical for a jumpstart, giving accurate latency readouts, allowing scalability. However, coordinating changes with non-LTR work could be a hassle, risking prod cluster stability. So naturally, we chose a single cluster. Hindsight is 2020, but at the time, latency and cost were preeminent. Spoiler alert—safety and development isolation are, unsurprisingly, much more important.
+
+Our first production attempt prioritized latency and cost by using a single cluster. We wanted accurate latency reflections under production pressure. We also had to test LTR without suboptimal user results. Our first few attempts were imperfect, so we needed to make these concerns separable—test freely without worrying about top-line metrics. We used technology typically for service-level proxying to shadow traffic—the network setup using Envoy, our application proxy layer. Perfect to mirror traffic—our diposed queries went to Shadow Kubernetes pods that handled reranking. Main benefit—response thrown away, ignoring user impact. Once traffic dialed, Shadow traffic started with large latency increases, causing down replicas, down shards, widespread caching failures—this killed Solr.
+
+We recovered by deciding on a separate LTR cluster, focusing on safety, development, and tuning things like thread module and GC settings without impact on non-LTR scenarios. Once shadow traffic was okay, we moved to A/B testing, splitting a percentage of incoming traffic for ranking. Now, over to Chris to talk about scaling problems.
+
+**Chris Fournier:**  
+Thanks. So, yeah, once shadow traffic dialed up, things were smooth—no. There'll be a slide, don't worry, focus on me. Yes, we killed Solr a few times. Here's how we fixed this—with tuning!
+
+As a background—many of you run Solr, right? Running it means volumes of queries per second, major Java Virtual Machine (JVM) garbage collection tuning to perform at scale. GC, of course, about memory reclamation, needs to be frequent, fast, to avoid impacting crucial work, say, queries. We faced old generation starvation, unable to create short-lived objects, essential when handling many queries, ephemeral spectra. Fixing this didn't fully stabilize our cluster. LTR plugin served ranking traffic, yet plunged into issues. It's issuing a query—Retrieving top N documents per shard; reranking occurs—more queries to compute ML features are sent—reranked documents returned. This is our goal—1000s of queries per second through flood gates. Solr failed—many times—I'll cite an example of failure structurally.
+
+Normally, non-ranking clusters handle traffic. Graced by moderate stress: increased GC pauses, higher query latency, yet no failure—the follower nodes steady with leader updates. Under LTR? Not so much. Ramp-up brought dreaded death spirals. Increasing GC pause times, overtaking critical activities—even causing outage. Socket exhaustion, garbage quality fatigue led to follower lags, shard urgency, manually initiated revivals—the GIF-for-impact era, moment of respect. We suspected GC throughput and tuned.
+
+Looking deeper—trying modest traffic scaling—revealed amplification issues. Doubling traffic from 5–10% tripled GC time—catastrophic. Addressing throughput interferences—less work for GC was necessary—problem dissection emphasized LTR reranking's impact. Compared clusters, especially regarding LTR feature caches; caches, not tubes, but buns woven tightly. Filter cache—memory-residing filters, processed once, low query cost.
+
+Ramping traffic bloated filter cache—triplicate misses balancing load. Notably, a 3x cache item spike for 2x traffic. Cache heights—predominantly short-lived items. Hints toward GC turmoil. 75% LTR cache hit—expected over 86% without. Filter queries sourced resentment. Caching awareness scrutinized architectural functionality for precision—46 queries per, six pack, issues surfaced.
+
+Experimentation: Varied reranking—full, zero, omit filter queries, no-cache requester test beds. Traffic scale—evaluated GC times—differences were typical. Preliminary science: Traffic escalation yielded increased GC, higher death-spiral metrics. Solutions-functional GC downturn, config dips yielded no panic across trials.
+
+Shared empirical views validated: no-cache suffices perhaps our edge remains via featured threads retained outside caches. Success, undisclosed volatile spikes settled as methodology took hold, user GC-devices demand timely check after stabilizing.
+
+Completion success: Scale revalidated, investigations gave recollections towards potential cluster failures. Feature efficiency recognized, benchmarks established for fair GC practice and optimal filtering extensions for JVM fluency. Doug, projections outlined “next steps.”
+
+**Doug Turnbull:**  
+Yeah, as we started to ramp up A/B testing past this year's outline, every LTR talk has the “plateau of despair,” right? Where you feel like getting to a point where things just feel like they’re improving, but contextually, instead remain flat. The search performed sure as some notably better, but our results were not significantly surpassing our baseline. We deeply soul-searched and realized something fundamental: another LTR learning. During manual relevance work, you're engaging consciously with different weights, guided adjustments—80% accurate even. "Looks good to me," the mindset. In ML, masses of data must be clear and error-free. Training, clumsy to a broader engine, seeks every frequent query pinpointed correctly.
+
+Training assumption—not agitating a 30- to 60-day click aggregation or summation potential yet. Untrustworthy synthesizers, authority figures informed deeper judgements—but with so much social search change, everything is dynamic, days-critical, context-overflowing dynamic pages support us, yet hinder us uniquely. Our search engine fails both its slice-chore when experiencing contributions qualifying priors. These search results change profoundly, socially active—unique.
+
+Rethought—aligned approach—mirrored labels, avoided useful, training tracked sets of search results direct. Unrestricted data appending sessions waged results themselves as revealed examples. Time span data—an experiment storage bridge riding—the BM25 score encased, trained independently along those query-time lingering corpus.
+
+Economic ramifications—embracing signals—extended entity generalizational facets fermented elementarily. Reevaluating training, strengthening steps, model crafting in terms of structured competencies, repeat abetted under ideal conditions. Open-awareness impinges positively over history navigation, beyond loophole eschewing impact. Success approach arrangements, further discover.
+
+At conclusion, the book, AI Powered Search, helps—coming soon with a discount. Check out AI-powered to solidify networks—great starting resources.
+
+**Audience Member:**  
+[Applause]
+
+**Closing Q&A:**
+
+**Audience Member 1:**  
+So right on your first slide, you have the model where you do the LTR on the lexical features and vector on the right. Why is the vector score not an input to the LTR?
+
+**Doug Turnbull:**  
+We hope to do that in the future definitely. It’s primarily about inference levels potentially interrelating for boosted effectiveness, a consortial possibly already part subtle workshops. Totally correct.
+
+**Audience Member 2:**  
+Clarification—training data, “counter examples” concept—not benefitting from relevance labeled?
+
+**Doug Turnbull:**  
+Yes, exactly—it’s within query results irrelevant aspects. Having irrelevant, matching titles—directive lack of decision infusion. Irrelevant addition assists particularly after introducing unrelated noise to strength, known useful response enhancements rise. Performance sorted.
+
+**Audience Member (Habib Shu):**  
+Curious—tuning issues duration, instrumentation, observability utilization?
+
+**Chris Fournier:**  
+Still optimizing—but design setup, dual node temporal migration parallel LTR adaptation rough—and Grafana aids query, visualization diagnostics.
+
+**Audience Member 3:**  
+Model automations—is there profound place for tuning TL model contingent humans?
+
+**Doug Turnbull:**  
+Smart rollout—is poised, gradual, human individuality losing juice, importantly diligent guarantees in review residual. Weekly likely threshold surroundings transitioning.
+
+**Aruna Gooru:**  
+General LTR Plugin—feature set count affects pedestrianism, refined methods?
+
+**Cliff Chen and Doug Turnbull:**  
+Threads pertain to cores, latency handled well also not aligned theories, truth depth beyond the feature layer balances according to need per runtime query implementation, empirical yet supervision-bound logistics.
+
+**Mike Henderson:**  
+Where’s the discount code?
+
+**Doug Turnbull:**  
+The Search Relevance Slack via opensourceconnections.com/conference. Thanks everyone very much—applause acknowledgment for speakers!

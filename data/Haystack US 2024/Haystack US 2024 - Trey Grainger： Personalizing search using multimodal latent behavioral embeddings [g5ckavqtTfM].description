@@ -1,0 +1,15 @@
+earning user context from behavioral signals is critical for optimizing search relevance, but most search engine and vector database implementations completely ignore personalization today, relying only on keywords and content embeddings.
+
+To fully understand user intent, however, your search engine needs to consider not just the content (text, images, etc.) and domain (entities, relationships, terminology), but also the user context (personal preferences and goals, popularity, and cohort affinities).
+
+While high quality embeddings from LLMs and multimodal foundation models have enabled innovative approaches to semantic search, content-based embeddings are usually deployed exclusively, since you can easily use an off-the-shelf model or fine-tune a model on your content using standard libraries. This enables a semantic interpretation of your documents, but it entirely ignores your valuable user interaction data (searches, clicks, and other signals).
+
+In this talk, we’ll focus on integrating user behavior into modern search retrieval pipelines for RAG and traditional end-user search. We’ll cover training an embedding model using behavioral signals to discover latent features, adding user behavior as another modality in your multimodal search engine.
+
+We’ll cover traditional signals-based models for AI-powered search (signals boosting, collaborative filtering, click-models) and how these map into a multimodal embedding approach that combines the best of your content, domain, and user understanding into a holistic approach to modern search relevance. We’ll also cover general strategies for applying personalization to your search engine, ensuring appropriate contextual guardrails are in place so that the personalization is applied with a helpful, but light touch.
+
+We’ll walk though live, open source code examples showing how modern hybrid search approaches can learn these user and group affinities and implement personalized search experiences to delight your users.
+
+Trey Grainger is lead author of the "AI-Powered Search" book (Manning 2024) and the Founder of Searchkernel, a software consultancy building the next generation of AI-powered search. He previously served as CTO of Presearch, a decentralized web search engine, and as Chief Algorithms Officer and SVP of Engineering at Lucidworks, an AI-powered search company whose search technology powers hundreds of the world’s leading organizations. He is also co-author of "Solr in Action". Trey has 17 years of experience in search and data science, including significant work developing semantic search, personalization and recommendation systems, and building self-learning search platforms leveraging content and behavior-based reflected intelligence. This work resulted in the publication of dozens of research papers, journal articles, conference presentations, and books focused on intelligent search systems.
+
+Haystack US 2024 brought to you by OpenSource Connections, Experts in Search & AI, offering consulting, training and specialist staffing - talk to us about your search & AI project at https://www.opensourceconnections.com .

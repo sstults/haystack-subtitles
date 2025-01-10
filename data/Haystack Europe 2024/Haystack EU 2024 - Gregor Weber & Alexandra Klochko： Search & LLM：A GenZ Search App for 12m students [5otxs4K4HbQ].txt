@@ -1,0 +1,79 @@
+**Host**: As a conference organizer, one hopes everything goes smoothly, or at least we like to present the impression that everything is going smoothly. However, there's a lot happening behind the scenes, and unfortunately, one of those things that happens sometimes is our speakers dropping out at the last minute. This happened last Wednesday when one of our speakers couldn't make it because they had left the company they were representing. So, I had to ask some people to act as backups. These were people also highly rated by our CFP process. Obviously, we only have a certain amount of slots, but I'm very pleased to say that Gregor and Alexandra from Knowunity have stepped in. They'll be presenting today, and they've literally been pulling their slides together over the weekend. I would tell you more about them both, but we didn't even get a chance for them to send me a bio, so I could make something up. Would you like me to make up a bio for you? 
+
+**Gregor**: No, no, probably very sensible. 
+
+**Host**: So, we're going to kick off in a second, just checking the Zoom is working. It seems to be back, and they're going to be talking about building a Gen Z search application for 13 million students with LLMs and search. Please give a round of applause for Gregor.
+
+**Gregor**: Cool. I hope you can hear me all.
+
+**Audience**: Yes, sounds good!
+
+**Gregor**: Cool. Welcome to our talk about search and LLMs, building a Gen Z search app for more than 13 million students. Today, we'll talk a bit about how we at Knowunity build our search. This is our quick agenda. We'll first quickly introduce ourselves, tell you a bit about who we are and what we do. Then, we'll focus on quickly explaining how our search works to give you context for the rest of the talk. Afterward, we'll discuss our journey with LLMs and conclude with overall learnings that we had, with hopefully some takeaways for you as well. Cool, let's jump in.
+
+I'm one of the co-founders of Knowunity, which we started around four years ago with three other friends in 2020. Back then, we were still in school and realized that education is stuck in the 80s. Education is super analog, with things happening on paper and no digital interaction. It's also super isolated, with students learning on their own without much group learning.
+
+On the flip side, students spend a lot of time on their phones, on TikTok and Instagram, and don't really spend it on anything meaningful. Education is also quite privileged, with household income correlating highly with educational degree, especially in developing countries. So, we set out to build a product for students to bring education into the 21st century.
+
+Our goal was to build a daily learning companion, an app that accompanies students from fifth grade onward to currently up to A levels and eventually to university level. Our approach was to build a social app by students for students, as most education products are built by teachers or older people. We focused on a personalized companion with content created by students, with around 1.5 million content pieces on the platform. This is all user-generated content, and we built a community where students help each other and learn together in a fun way.
+
+Since our launch in September 2020, we've grown rapidly, with users loving the app. We've climbed to the top three of all app stores, surpassing apps like TikTok. There have been countless stories of students who say the app has helped them significantly, even saving their A levels. We've expanded to more than 11 countries and grown to a team of around 60 people here in Berlin, with over 25 million in funding.
+
+Quickly about us. I'm Gregor, one of the co-founders. I initially built the first app and search version back in 2020. I'm currently more on the product side, leading our product team, but still deeply involved in search.
+
+**Alexandra**: Hello, I'm Alexandra. I joined Knowunity a year ago as part of the search team. Before that, I worked in ed-tech on the medical side, helping medical students learn better. Together with Gregor, we're putting all our efforts into search.
+
+**Gregor**: Cool, then let's talk about search at Knowunity. I've brought some numbers to give context. A core use case for students is finding study notes for exams or homework. These notes are user-generated, and we have around 1.5 million of them. Students search in the app for these study notes, through classical search or recommendations.
+
+We host everything on Elasticsearch, with around 500,000 searches per day, fluctuating due to students’ activity during weekdays versus weekends. We support eight languages, which makes everything a bit more complicated. Our team is small, with one search engineer, Alexandra, half a PM, and 10% of me and a backend engineer. So far, we ran around 200 A/B tests, being a data-driven company, especially on search.
+
+**Alexandra**: I wanted to show you the complexity of working with various types of PDFs. These include graphs, plots, diagrams, mind maps, and sometimes complex layouts, which complicate extracting information for search processing. Our backend infrastructure processes student-uploaded content via OCR to extract transcripts, and machine learning models provide additional document insights. We store text embeddings from OpenAI in DB and stream events from our frontend into BigQuery. We also use a small Hugging Face service to predict user conversion likelihood, helping tailor search results.
+
+**Gregor**: Switching over to our journey with large language models in search, we jumped on using LLMs early on, even before ChatGPT, due to the potential for handling unstructured content. Our first attempt was extracting keywords from documents, which were tricky due to OCR errors and noise. We used GPT to extract keywords and used them to improve search recall for less common terms not in titles or descriptions.
+
+Testing search is challenging without purchase events, so we focus on meaningful user events, such as spending 120 seconds on content, indicating a positive interaction. Our A/B tests evaluate search-to-study event rates and retention impact.
+
+A core learning was GPT-3 was costly and not as effective, but models have improved significantly.
+
+**Alexandra**: We also explored Google-style follow-up questions for users to engage with relevant content. Students often struggle to phrase good search terms, so we aimed to provide more intuitive interaction, even though the quality of language models back then was not the best.
+
+Later iterations included introducing an AI chat-like companion in search for formulating better search terms or summarizing content, leveraging cues on user inactivity to suggest the AI feature. Unfortunately, it initially lacked visibility and didn't engage users.
+
+In subsequent design attempts, we included AI answers directly in search results, with AI summaries but faced latency issues impacting user experience. We noticed users prefer full study notes over summarized answers, leading to evaluation data showing no positive impact.
+
+**Gregor**: We also delved into backend improvements, learning to rank content by quality using features like readability and structuredness. This approach improved content ranking without relying solely on user interactions. LLMs facilitated training classification models based on GPT-4 output, distinguishing well-structured, readable content from lower-quality submissions. Despite OCR limitations with handwritten content, leveraging GPT-4 Vision improved transcripts' accuracy and usability, though cost remains a barrier for large-scale processing due to pricing.
+
+**Alexandra**: For our "Did You Mean?" feature, we attempted using smaller LLMs, but found balancing speed and quality difficult, with less satisfactory results in languages besides English and German.
+
+Another initiative involved building a knowledge graph to support continuous learning by mapping related topics from our content. This process of identifying key topics and entities from search data required significant duplication and disambiguation work with LLMs. It demonstrated LLMs' prolific creativity but necessitated stringent refinement.
+
+**Gregor**: Lastly, an attempt to create a comprehensive AI results page merging AI conversation features with search showed strong user engagement with AI chats. However, latency and the persistent user preference for full content over AI summaries remained challenges.
+
+Summarizing our learnings: LLMs facilitate fast MVP development, especially indexing time tasks. They enhance machine learning tasks efficiency, but cost, speed, and quality trade-offs persist. Non-LLM improvements also play crucial roles, with lessons emphasizing understanding user needs over leveraging flashy tech for its own sake.
+
+**Host**: Fantastic. You came up with that presentation over the weekend, which is very impressive. 
+
+**Gregor**: I finished it yesterday on the train. 
+
+**Host**: My colleague Eric calls it conference-driven development. Okay, do we have any questions?
+
+**Audience Member**: Thanks very much. I have a comment—I feel like you don't trust LLMs very much—and a question. You mentioned that 120 seconds is a meaningful event for search success. Do you have anything else, like sharing with friends?
+
+**Gregor**: Yes, concretely, it's 120 seconds, saving, or taking a screenshot. On your first point, we don't trust LLMs completely, and I think you shouldn't because they sometimes produce incorrect output, so it's essential to verify.
+
+**Host**: We're getting questions online. Sam asks for examples of LLM outputs requiring cleaning, particularly regarding duplication?
+
+**Alexandra**: Sure, examples include topics like "Causes of War" vs. "Reasons for War." We remove exact duplicates but go further, recognizing semantically similar content that may not add value.
+
+**Audience Member**: Thank you for an amazing talk. You've done a fantastic job with such a small team. Regarding evaluation, how do you ensure content aligns with student expectations given the variety?
+
+**Gregor**: Good point. Our philosophy leverages scale; even if some content is suboptimal, engagement metrics help identify truly helpful content. We rely on user feedback, employing filters driven by actual use cases and interactions.
+
+**Host**: Online question from Jack: Do you use an off-the-shelf A/B testing system for search?
+
+**Gregor**: No, we built our framework, initially using Firebase but later developing a customized system integral to our data-driven approach. 
+
+**Host**: With the triangle of quality, speed, and cost, won't user expectations always seek leading-edge solutions, keeping some functions expensive?
+
+**Gregor**: True, though for many users, especially younger ones, immediate utility and quality defined by existing norms are more critical than cutting-edge technical specifics.
+
+**Host**: Okay, apologies, but we'll have to leave it there. Please reach out to Gregor or Alexandra—I'm sure they'll be happy to chat more, either in person or through Slack. Everyone, thank you for stepping in and delivering a fantastic talk.

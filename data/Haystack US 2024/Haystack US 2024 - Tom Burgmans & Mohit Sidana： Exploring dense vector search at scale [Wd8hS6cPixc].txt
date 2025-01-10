@@ -1,0 +1,77 @@
+Welcome back. This is the last talk of the afternoon in this theater. After this talk is finished at 4:00, we'll have the lightning talks in the big theater, Theater 5. They should be quite exciting. And now, I'd like to turn it over to Mohit Sedana and Tom Bergmans to tell you about testing vectors.
+
+Mohit Sedana: Good afternoon, everyone. My name is Mohit Sedana, working as a Search Architect for Wolters Kluwer. Together with my colleague Tom Bergmans, we're working in the search team focusing on the development of a very mature keyword search functionality. I'd like to ask Tom to introduce himself.
+
+Tom Bergmans: My name is Tom Bergmans, Technology Product Owner and team lead of the Search Team. A bit more about Wolters Kluwer, if you're not familiar—Wolters Kluwer is a company where we provide access to information for professionals in different domains like tax, legal, healthcare, and compliance, offering many online solutions. In these solutions, we offer access to millions of documents where users can perform full-text search, doing their research and finding the information they need to fulfill the needs of their end users.
+
+Mohit Sedana: So, a bit of introduction. What we would like to talk about today is our journey, where we discuss our learnings by applying a series of experiments. We conducted tests to assess the capabilities of vector search while maintaining our keyword search functionalities as they are. As we all know, vector search is a game changer because it allows for searching for keywords and meanings, unlocking different use cases. We see more and more how users are searching for information and how they are consuming that information is ever-changing.
+
+Tom Bergmans: Looking at this very beautiful picture, it's the Gartner hype cycle, a graph summarizing the five stages of a new innovation, from the innovation to the hype. It looks like a silver bullet that solves all problems, but as we know, you go through a phase of disappointment where it doesn’t deliver, and then widespread adoption occurs. That's why large-scale testing is crucial. We deal with massive data sets, with millions of documents, which must be converted to vectors, while balancing quality and cost.
+
+Mohit Sedana: We saw an earlier talk where vector search was discussed as exciting, but it's important to include features like spell checking, facets, and filtering. At the same time, maintaining balance is crucial because it can really blow up your costs, as vector search is expensive in terms of time and money. We divided this task into two parts: converting text to embeddings, and actual ANN search, which Tom will discuss in detail. 
+
+I'm focusing on computing embeddings. We started experiments with variable-length text, 1000 queries of different lengths, and four open-source models with different dimensions—small, medium, large. We developed an inference service where you input a text, and it computes vectors. We tested this with 100 threads as our baseline. A disclaimer, we're part of the production team, not machine learning engineers, so our approach was quite naive initially. From this graph, you see there's an error with the first rows being too small, but this was our first slide.
+
+In our query inferencing tests, we needed to know what kind of machine runs the inference service effectively. We started with regular CPU machines, then realized they don’t scale, so we tested on GPU machines. We examined special chips called Advanced Vector Instructions (AVX), optimized for only CPUs. GPU was the clear winner, especially running with 100 threads; query latencies were high with larger models. In order to do inferencing, GPU power was vital.
+
+The second test was the correlation between text length and embedding inference latency. The graphs show, with four models, that larger models and more tokens exponentially increased inference latency. Larger models compute vectors for each token, which impacts the overall process, not only at query time but also at index time.
+
+We included a common knowledge slide showing system load tests with varying concurrent users, up to 800. The results emphasized the high thread count impacting computations, especially with large models.
+
+We found using ONNX (Open Neural Network Exchange) format was a powerful performance booster, combined with GPU usage, seeing query latencies under 50 milliseconds for 100 threads. There's more to explore, like model optimizations and scaling embedding services horizontally or vertically to improve further. Tom will now talk about ANN search testing.
+
+Tom Bergmans: I'll show more numbers and graphs; it's the last talk of the day, and I'll try my best to keep it interesting. Vector search differs from keyword search—instead of table lookups, it traverses a graph. We're working with Lucene's HNSW index, and we wanted to discern what parameters affect speed and efficiency.
+
+Our test situation involves 2.6 million indexed documents on a large machine with 128GB RAM to fit the entire index, and 100 concurrent users representing a typical busy day scenario on one of our major products. Each query was a unique vector to avoid cache testing, varying across four different models. Initially, tests showed poor performance because of unmerged segments causing inefficiencies. After merging segments, search latencies improved about tenfold.
+
+Going forward, all tests are on fully optimized indexes. We've also checked how vector indexing impacts index size, shown in our first graph, with abstracts vectorized, significantly expanding the index size. Query side latencies were surprisingly good, with low delays across tested conditions.
+
+Testing concurrent queries on multiple collections instead of one showed robust results, even with 50 million documents and 300 users. However, the data set size must fit in memory to avoid performance spikes.
+
+We explored K-values, which determine the number of results and also relevance. Higher K-values can align top search results better but increase computation demands, as shown in the results with varying K-values. 
+
+Exploring similarity functions—Euclidean, Cosine, and Dot Product—revealed Dot Product as the simplest and most performant under low K-values. However, Euclidean’s efficiency varied beyond 3,000 K, switching relative performance.
+
+Finally, vector encoding uses float and scalar quantization to byte format, expected to reduce index size and potentially enhance speed. Our results confirmed index size reduction with significant gains in query speed, albeit with precision loss trade-offs, emphasizing the speed-cost-relevance balance.
+
+Stress testing with increased user loads reaffirmed system stability under expected demand, backed by quantified results. This stress test underscored the importance of fitting indexes in memory.
+
+Filtering uniquely affects Vector Search as filtering nodes alter graph traversal paths, raising latency unlike inverted index searches, where it lowers it. Our findings showed acceptable ranges for small models, but with more extensive filtering, the graph's traversability suffers until it switches over to brute force search. Here, further research and potential deployable strategies emerge as we deepen exploration beyond our initial parameter adjustments.
+
+In conclusion, the lessons from our vector search trials illuminate many and prompt further queries deserving exploration, synthesizing theoretical frameworks into tangible, learnable insights adaptable to future constructs. Thank you for your time.
+
+[Applause]
+
+Host: Since we have such a wealth of questions from Zoom, we'll start there.
+
+Audience Member (Alexandra): Is ONNX also better on CPU?
+
+Mohit Sedana: From earlier tests, we didn't find that. However, tests with quantized models using INT8 showed significant improvement.
+
+Audience Member: Great talk. I have answers to many of your questions, but we can talk later. I do have a question though—what JVM version were you using and is Solar enabling the Panama Vector module for SIMD calculations?
+
+Tom Bergmans: We used Java 11. I believe Solar does enable that.
+
+Audience Member (Aruna Govu): What is your approach to generating the byte quantized vector?
+
+Tom Bergmans: It was a brute force approach. We normalized the vector to a standard value between zero and one, then mapped it into values from minus 127 to 127, using a simplistic method which was not ideal, but effective in some tests.
+
+Audience Member: Thanks for the great talk, guys. I'm impressed with the ONNX results; could you tell us about its implementation effort?
+
+Mohit Sedana: We used open-source libraries and models from Hugging Face and Optimum for conversions to ONNX, making the conversion straightforward.
+
+Audience Member (Kevin Langang): From an infrastructure perspective, how do you simulate concurrent users?
+
+Mohit Sedana: We used JMeter, configuring it to generate specified concurrent threads, simulating the traffic from a separate EC2 instance.
+
+Audience Member: Have you looked into the text embedding inference by Hugging Face?
+
+Tom Bergmans: Not yet. We are continuously learning and finding optimized approaches as we deepen our research.
+
+Audience Member (Habib Shapu): Plus one for Optimum! Was any comparison done on the quality of results between byte and float 32?
+
+Tom Bergmans: Short answer, no. This round focused on speed over quality; a future talk could explore quality aspects in depth.
+
+Host: All right, no more questions. Let's thank our speakers!
+
+[Applause]

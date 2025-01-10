@@ -1,0 +1,61 @@
+**Host:**  
+So I'm very pleased to welcome Lucian Precup from Adelean and the all.site search engine. Based in Paris, Lucian has been a very kind host of a Haystack on Tour we did at the end of 2022, which was great fun in Paris. Lucian is a steward of the Haystack Conference and has done many talks here. So, we're going to hand over to him, and he's going to be talking about Apache Lucene and the journey from text indexing to artificial intelligence.
+
+**Lucian Precup:**  
+Yes, hello. Thank you for being here. It's so nice to find you again. I have some questions for you. I know we are also online, but for the people who are physically present here—how many of you are Lucene committers in this room? Okay, so we have one person. Thank you for everything you do. How many of you work with Solr, Elasticsearch, OpenSearch or with Lucene in some way? Okay, that's about three-quarters. And how many of you are involved with other search technologies, like Algolia, Weaviate, or Pinecone? Okay, a few people, great, thanks.
+
+Lucene is a search technology, a very powerful one, and what's interesting about Lucene is that it was first incubated into the Apache project in 2001, which is really amazing. I am not aware of another technology that has such a long lifespan. Maybe half of the technologies we use today have existed for less than three years, and many technologies we used five years ago are no longer in use. There was a time when we talked a lot about technologies like Hadoop, which still exist, but we don't see the same traction. I don't even want to talk about front-end technologies that come and go quickly. Lucene has been around for 22 and a half years and continues to thrive; that's amazing.
+
+Looking back at the life of Apache Lucene, I have some citations from Twitter. By the way, Twitter uses Apache Lucene for its internal search. They have even been committers in the beginning and were extensively using Lucene. It's interesting because Twitter didn't exist when Lucene was first founded, but these tweets are from 2011 and thereafter. We see a lot of work done over time by the community and the committers. We've witnessed significant improvements in performance, seeing things suddenly go 100 times faster, 50 times faster, or 5 times faster. Lucene has also been instrumental in finding bugs in the JVM; it's perhaps the project that has uncovered the most bugs in the JVM. This has continued since the beginning of Twitter. The last tweet I have here talks about vectors, which was a popular topic last year and the year before.
+
+Do any of you know about Berlin Buzzwords in the room? Okay, great. It's a European conference that takes place in Berlin and is a reference for everything related to search, store, and scale, mainly in the open-source world. Each year for quite some time now, there has been a talk around Apache Lucene, either discussing what's new in Lucene or how many JVM bugs Lucene has found or how it has improved performance. I'm ready to bet that in 2031, 30 years from 2001, we will still see someone talking about Lucene at Berlin Buzzwords.
+
+Apache Lucene is powering many technologies. We don't hear much about Apache Nutch these days, but it was powered by Lucene. Lucene is the technology that came right before Hadoop. Of course, we also have Apache Solr, which was even merged with Lucene at one point. Then there's Elasticsearch and some newer technologies. MongoDB chose Lucene to build their search capabilities—a decision made two years ago. We're still choosing Lucene for new projects; it's not just a relic because it has a large number of users.
+
+I didn't introduce myself. I'm Lucian. I work with Adelean, and we do everything around consulting and training. We also develop a software called Addloop, also built with Lucene. Charlie mentioned all.site, which is a collaborative search engine also built on Lucene. Now, let's take a step back and see how we got here and how Lucene managed to reinvent itself over the years.
+
+The basis of Apache Lucene is the inverted index, which you likely already know about. I want to refocus on that because it's where everything started. Here, I have three documents, and the first thing Lucene does with these is tokenization, extracting what we refer to as "words," although they're technically tokens. We keep unique words, sort them, and then list them; this is the inverted index. This was Lucene's very first version, an exercise you could give to a university student or a job-seeker or even to ChatGPT, and it would be able to write this program. This was the simple start.
+
+Lucene's analysis chain is another core functionality. Tokens aren’t added to the index as they are; they go through this chain. For example, we lowercase capitals, and employ stemming to treat plural and singular forms like "cars" and "automobile." We also use synonyms; Lucene can understand "automobile" and "car" are synonyms. We can use stopwords like "of," "on," etc., as they're often non-relevant. The resulting data structure is highly optimized for performance and boolean queries. Searching for a term like "automobile" is fast, as you can directly access pointers to the relevant documents.
+
+Apache Lucene had additional structures even in its first versions because metadata and support for phrases were needed. It didn't just handle the simplest of structures. The syntax persists today, available in user interfaces like Kibana and OpenSearch dashboards. You can perform field searches, phrase searches, approximate searches, etc. Some features weren't available at the start, but Lucene evolved.
+
+Text analysis in Lucene is fundamental. It allows text to be analyzed at both index and query time, making it fast. This is exemplified in an autocomplete service; initially, it used wildcard searches that required full index scans, which were slow. By introducing n-grams, the index became bigger, but with compression, Lucene was able to construct an index with the original text file’s size while adding functionality. The analysis chain can differ between index and query times, which adds utility.
+
+Lucene's efficiency improved with fuzzy queries. The integration of finite automata like FSA and FSTs optimized them significantly, achieving up to 100 times faster query speeds. Such performance boosts were transformative and extended to other Lucene features. More data is indexed for efficient searches, which steadily increased Lucene's capabilities.
+
+In e-commerce, we realized Lucene needed numeric support. Early Lucene was text-oriented, and numeric sorting (like product prices) required text workarounds, which could be inefficient. Early experiments storing integers show Lucene's adaptability to space and performance requirements. Term facets, range facets, hierarchical facets: these enabled detailed queries and drove Lucene's data inversion innovations. Doc values arose from these needs and introduced relational database concepts such as runtime joins. Features like document blocks and field collapsing were instrumental in e-commerce use cases.
+
+Lucene became viable for geographic searches, despite initial challenges. As polygons required integer use previously unsuitable, Lucene introduced Geo shapes, bounding box queries, and other spatial features, achieving market dominance as a spatial database. Massive monitoring and observability use cases validated its utility, comprising most existing use cases for Elasticsearch and OpenSearch today.
+
+Vector indexing and search moved Lucene into modern AI paradigms, accommodating text, image, and audio searches by forming multi-modal vector spaces. Supporting both dense and sparse vectors, Lucene found compatibility with its inverted index roots. Dense vectors empowered by K-Nearest Neighbors (KNN) accelerated search capabilities, introducing hybrid search elements with filters. Sparse vectors, facilitating term expansion and fuzzy querying, offered efficient querying solutions.
+
+The AI revolution, marked by ChatGPT, presented challenges and opportunities. Some turned to ChatGPT over search engines, underscoring an industry paradigm shift. Search engines once prized relevance and personalization, now evolved into conversational AI and chatbots, Bing, exemplified in this shift.
+
+Yet large models like GPT-4 face real-time and domain-specific knowledge gaps, alongside hallucination risks where accurate source recounting is lacking. Realizing this, retrieval-augmented generation (RAG) integrates vector databases like Lucene to bridge these shortcomings, complementing limited LLM contexts with highly relevant search-engine-derived content.
+
+Technological evolutions in RAG were exemplified during insightful presentations, forecasting AI interplay before acknowledging their nomenclature. Search engines iteratively blend with LLMs for question-answering, harnessing RAG principles, such that Bing now exemplifies LLM connectivity, transparency through source citation, and improved user engagement.
+
+In practical deployment, Lucene situates above business data, safeguarding proprietary and internal knowledge beyond public internet access. Such capabilities emphasize Lucene’s role in connecting Slack channels, Wikis, etc., forming bespoke search solutions necessitating Lucene’s hybrid approaches. As discussed through conferences, these architectures facilitate the creation of RAG systems and hybrid queries, optimizing data handling.
+
+In closing, my colleagues will detail RAG implementation using Lucene next month, diving into how such dynamic systems evolve and function. Quickly demonstrating through Elasticsearch, queries yielded conversational insights across HTO’s vectorized talks database.
+
+**Audience Member:**  
+Thank you for the talk; it's nice to see how Lucene is evolving. You mentioned user experience and user interface considerations in retrieval-augmented systems. Could you speak on Lucene’s evolution regarding user interfaces and the potential changes in coming years, considering their impact on leveraging RAG for real actions?
+
+**Lucian Precup:**  
+Thanks for your question. Apache Lucene is a low-level library providing tools for creating systems on top of it. The same goes for Solr, Elasticsearch, and OpenSearch—all built atop Lucene. They don't offer user interfaces directly. However, Lucene enables user interfaces applications, organizing tools for building hybrid search integrations. You can create interfaces displaying answers with their sources, advancing usability.
+
+**Host:**  
+It's a reminder of the importance of user experience in search and AI applications. It's something we're looking into at OpenSource Connections, considering these shifts in user experience. There are radical changes in how search-backed applications are used, moving away from traditional formats like "10 blue links" to more conversational interactions. This calls for more attention towards user experience, as changes expand even further.
+
+Do we have any more questions from our online audience?
+
+**Audience Member:**  
+For vector and keyword-based retrieval, what are the best practices for using them simultaneously?
+
+**Lucian Precup:**  
+There aren’t universal best practices. The use cases matter most. Hybrid search proves beneficial broadly. As emphasized in today’s talk on hybrid searches, choices rely on addressing specific needs and implementations: almost every scenario benefits from hybrid approaches.
+
+**Host:**  
+If we have no more questions, let's give Lucian a round of applause. Thank you.

@@ -1,0 +1,121 @@
+Host:  
+I think we're about ready to get started. Everybody, do me a favor and cross your fingers real quick that the Zoom gods and HDMI gods all work for us. We're running a Zoom session between two laptops here to make this project up there to get recorded and go to another Zoom online for all the online viewers. Fingers crossed, right?
+
+Eric Pugh:  
+Terrific. User Behavior Insights is the topic of this talk, formally titled "Your Search Engine Needs a Memory." I'm going to do some introductions. My name is Eric Pugh. For those of you who don't know me, I'm one of the co-founders of OpenSource Connections (OSC) and maybe more relevant to this crowd, I'm one of the instigators of Haystack, something I'm inordinately proud of. Seeing this amazing turnout every year makes me more proud.
+
+This talk is based on a presentation from a couple of years ago, on September 29th, 2021, when Trey Max and Doug gave a panel discussion about AI-powered search. They talked a lot about generalizable signals format and collecting signals. I opened an issue in one of our open-source repositories, thinking, "Wouldn't it be cool to track clicks using a generalizable signals format?" My interest in this obviously dates back a couple of years, so I'm really excited to be here now. Co-presenting with me is Stavros.
+
+For those of you who don't know, Stavros has deep expertise in the search field, with a background at Lycos, Google, and a couple of other big-name companies, and has done many interesting things. Today, he is a senior technical product manager for OpenSearch at AWS. Stavros definitely has a unique sense of humor. I looked back at my email and found my first interaction with Stavros. It was a classic email from him: very to the point and very short, but I've learned to appreciate them. It was heartening to realize you've been involved in the Haystack community for a while. I remember getting this email a long time ago and thinking, "Wow, there's real interest in this conference." A little trip down memory lane you could all take with me. We're really excited to talk about User Behavior Insights. I'm going to hand it over to Stavros to set some context, and then I'll do a demo, showing maybe some of the more technical bits of the work that we've been doing.
+
+Stavros Macrakis:  
+Thanks, Eric. Let's talk a little bit about why we need User Behavior Insights. Eric is really going to do the tough part of the work here. I think we all know that search needs data. We need to understand what's happening out there. Of course, we have the corpus data, but I'm not talking about the corpus data. We need data about how people use search. Why do we need it? I like to highlight a basic difference in our field between databases and search.
+
+In databases, you write your SQL query, and you know exactly what should come out. It's well-defined; there's no question of whether it's a good result or a bad result—it may not be the result you wanted, but the result for the SQL query is well-defined. That's not true, of course, in search. In search, you want the best results, and typically there are too many results to show all of them, so you can't say, "Oh yes, we're going to show all the results and the user can choose the best ones." We know this, and it's not rocket science. You want to know whether the results are good, whether we displayed the good results, and what's defined as good. You want to know which results are the best. So that's one reason you want data.
+
+Another reason you want data is to adapt your results to the corpus, the collection of documents you have, and the user population. Each application of search has a different notion of relevance. There's no universal notion of relevance, so how do you know if a document is relevant? You look at how people interact with it. 
+
+I would argue that the unifying concept in search is relevance ranking. SQL is fine as far as it goes but does not have the concept of relevance ranking. Sometimes people say, "Oh, we'll just use SQL to do search," and if you have a heuristic about what is relevant and what isn't, you can do a pretty good job. A few years ago, I had to do a company search—a subsidiary search within a bigger application. We had hundreds of thousands of companies in our corpus, but we knew large companies were more interesting to our users than small ones. We knew companies they worked with before were more interesting than those they hadn't. The data was dirty sometimes; large companies weren't even listed as large companies. You had to have some way to handle dirty data.
+
+So, what did I do? I went to my machine learning colleague and said, "Here's this corpus of data, and let's figure out how we can adjust the weights on different factors." No, that's not what I did. I think Trey likes this tool, too. I put my wet finger in the air and figured the company size was important, maybe more than the address. I chose about ten factors, adjusted them, made some as logarithmic or bigger or smaller, and, sure enough, it worked. We deployed it. Actually, I didn't. The engineers did it with SQL, and it worked beautifully. So, SQL is great if you know how to rank things.
+
+But I'd say that search is about relevance ranking, and usually, you can't do something as simple as what I did. You can't say, "Oh, yes, the, you know, a lexical search in the description is worth half as much as a lexical search in the title, or whatever, you know, all those sorts of things." So, what's our goal with User Behavior Insights? Our goal is to collect all the information you need for evaluating search based on user behavior. Why is that hard?
+
+You might think you could go to large company X analytics or large company Y analytics and buy their solution. But most analytic solutions are about aggregate data, about telling you what proportion of users use this page, how often they hit the back button, and so on. As far as I know, there are no good solutions for us in the search community, especially not available in open source. There might be some proprietary solutions, but not something that's open source and usable by anyone.
+
+Our solution is not linked to OpenSearch as a product. It can be used with any search system, and we'd like to make it usable for everyone. So, what kinds of questions do we want to ask when evaluating search? What did users search for? That's usually easy to log. How did they use typeahead? You can probably do that. How did they refine their search? What's the sequence of facets they used? Which facets did they hit first, and how much did that reduce the result list each time?
+
+What search or sequence of searches led to a particular purchase? For example, if I'm the category manager for slippers, and I want to know how people found red slipper number 235, are they searching for red slippers or for warm slippers? You can search backward and ask how did they end up buying it. That may involve the sequence of events before the search. They may have done previous searches and looked at recommendations, so you want to see what the user was exposed to before they did the search.
+
+All the actions, such as them clicking on this, hovering over that, hitting the back button, are important. That's a lot of data, but it's 2024. You know, the famous Google video where someone says, "I want to store five terabytes," and the answer from the system is, "I can't remember how to count that low." So, these days, the data volume is not an issue. We have much experience at OpenSearch, but also, all our competitors have experience with very voluminous log data. 
+
+I got a pop-up auto update. At least once a week, these happen. Thank you, Eamon.
+
+So, with all this background, what was I saying? I hope this background helps you understand the data we're trying to collect. We collect lots of data because we need it. We might think it's a solved problem, but my boss, Eli, and I went to Berlin Buzzwords two years ago, during an unconference, where we asked about 50 or so people about their search implementations. 
+
+We asked what were essential things every search implementation should do. We followed up with a question, "How many of you are actually doing these things?" Quite revealing data points emerged. On the list here, on the left, it's organized by the gap, how many think it's important but are not doing it. The first thing on that list was logging actions on search results. As a product manager, I want to listen, and this sounded important, and it sounded like people aren't doing the logging or aren't happy with the way they are doing it. Various issues align with this, but logging actions on search results emerged as critical.
+
+We've heard about the application data and understanding that. Evaluating the quality of results aligns with using this data. Other others are also important but not necessarily the topic today. That was interesting, but at Berlin Buzzwords, you mostly see small and midsize companies or amateurs, like people like you, who don’t really know what they're doing. I'm sorry.
+
+Then I thought, let's look at real customers. AWS customers. Elm and I spent a while discussing, and I spent some time talking to our salespeople, saying I want to get into meetings with people using search. The delay was they didn't quite understand search notions versus other OpenSearch applications. Finally, I got with relevant people in various companies and discussed their challenges with relevancy in search.
+
+The first thing was that very few people think of themselves as search relevance engineers. They think of themselves as software engineers. This is a problem. Here, at this conference, the people realize it's a discipline. But many do not.
+
+The second realization was that they all have problems logging. I talked to some huge companies you've heard of. I'm not allowed to tell you who they are, of course. And, at each company, I'd ask, "Do you log what people click on?" They'd say, "Of course, we log what people click on." But then, I'd ask, "Do you log what people don't click on?" and they'd respond, hoping they log the latter.
+
+There's a litany of responses. One company had prototype code that maybe logs position of clicks, but they didn't trust it. At another, the logging code was written years ago by Eric, who left, and no one understands his spaghetti code. There's a need for a better solution.
+
+So, when I interact with customers and even people here, I say we must close that gap. That gap—that's what Eric and I sat down to discuss. We focus on helping Bridge that gap. Once you have data of the same, you can start tuning and improving relevance and other matters accordingly.
+
+These are familiar processing algorithms. We can discuss them in detail anytime, lest it takes much time. Oh, by the way, I insist on 'lexical search,' not 'keyword search.' Keywords mean something specific, and it's not the same thing. Damn it!
+
+What is User Behavior Insights? In collaborating with Eric and his team, we've followed some principles. The first principle is standardizing the schema for events, not software as such, but the words' meanings. The second principle is providing software for event collection. The third is helping analyze these events since analysis should be easier once you have the data.
+
+There are various uses. You can manually tune things, use Bayesian parameter optimization, find your models, etc., depending on having data of how good the result is. Auto-learn to rank is our favorite, combining neural networks and vectors, a typo, sorry— neural and semantic rankings.
+
+What does UBI let you do? There are all sorts of applications. You can dashboard, managers love dashboards. Dashboards are useful to me only for unexpected bumps. Detailed investigation of specific problems by relevance engineers is possible. Data scientists can collect judgment offline despite real-time data reliance. Debugging and tuning applications like type ahead, etc. are enabled. 
+
+Real-time feedback to relevance feedback is our task here. We're working with an Amazon team called the Personalize team, which has non-open source products. Another part of Amazon, we're happy to work with any of you, any company interested beyond Amazon. We want this data to allow in-session adjustments of results, so our solution is near real-time. 
+
+We're aware that this data needs to feed as an input to machine learning models. That's an obvious requirement. So what's this project? Eric and I discussed it two years ago at a Haystack. Or, actually, maybe just I was at Haystack two years ago, possibly. I approached Eric, opening a conversation saying, "We don't have a standard for reporting this data." He agreed. We saw we hadn't any standard, and worked further upon it, publishing an RFC (Request for Comment) in our GitHub repository in 2022. We revised it and updated it again not long ago, last week, perhaps. The community debated names while having frequent presentations at OpenSearch community meetings. So, it was all community feedback-based.
+
+All the software delivered under Apache 2 License is open-source, community-driven. Now, I'll hand it over to Eric, for exploration into what we're actually creating.
+
+Eric Pugh:  
+Thanks, Stavros! Quick change, everyone bear with me. 
+
+Thank you for setting the context, Stavros. Quickly, a little survey to gather community feedback. Five simple survey questions. We'd love to have feedback from all of you on where we are, and we'll post the feedback in the Relevance Slack Haystack chat. Got it? 
+
+This is personal to me, so I'd like to share why UBI excites me—why this journey intrigues me. Some of you may recognize this diagram from other Haystack conferences. I use it often; it's how I conceptualize relevant improvement. 
+
+We have our two wheels: our lab offline environment, moving fast, evolving with trial and great data, and our live online environment. The live online allows validation if our experiments and ideas align with user expectations. I find often there's a gap—the clickstream is a gap. As a relevance engineer, working in this space is hard, a separate team, separate product, a lot of issues Stavros highlighted earlier. 
+
+Without robust clickstream data for relevance engineers, it's hard to work both sides of the relevancy framework. Digging around, I found copies of past presentations from 2020 and beyond. Around 2020, there's Eric saying, "Ugh, Google Analytics." That's the data I had most of the time, and you know, it kind of sucks.  
+
+Exciting to improve on that, fill this gap with what's designed for us. There's three parts to the User Behavior Insights project: code for collecting specific events, everyone's had a go, coding your own things, middle tier, etc., everywhere we've collected events. We don't want to build it ourselves. Everyone builds their own anyway, but we still aim to offer a simple starter-basic JavaScript client. That could be an area ripe with community contributions. 
+
+The second and significant part is developing a shared schema. A proper way of defining what users ask and understanding what a query is. User queries and accurate retelling of the documents, objects, records, chunks users return to. That's imperative, just like understanding user queries.
+
+Finally, it's crucial for us to establish a strong causal connection between the user query, subsequent actions, facets, and their interactions. For personalized searches, breadcrumbing user journey becomes pivotal. Existing industry tools don't showcase our industry-specific need. Lastly, from an OpenSearch implementation perspective, I appreciate Jeff [points], who contributes significantly to our project. Thank you, Jeff, for your efforts.
+
+The three elements, the most crucial is sharing schema. The aim is for feedback if the schema works for you: Is it rich where it needs to be? Is it extensible enough, or too much? It should be strong enough yet accessible. The project value comes from the shared schema all could leverage. Quickly I'll convey an overview before diving into a demo.
+
+Nothing groundbreaking, right? We start with a query initiation; a typed query, say, 'laptops,' goes into OpenSearch request handlers. Our arrangement intercepts that query and responding documents, writing them as a unique identifier, a query ID, into an index within OpenSearch. 
+
+I'm assuming a more user-connected result. It should show user interactions—what users engage with and what they don't. Traceability allows comparing queries, results, and subsequent behavior across sessions. 
+
+User interest processes differently, turning a quick win like a query ID into meaningful logging across interactions: a click-through indicator ties back a query-returned document merged with user action, creating a stronger index. 
+
+Imagine extending to in-session personalization, using query events directly—skip batching or queuing, guiding future queries with immediate past interactions. Adopting OpenSearch aligns it across paths. Data prepper and analytics insert insight into OpenSearch—desirable perhaps, especially in personalization-centric workflows focused on user feedback.
+
+We'll proceed to a demo, challenging for intrusive avenues. Anything collaborating on Chorus, especially Solar, Elasticsearch, and OpenSearch, should reflect in this reference implementation.
+
+Demo: Clicks log interactions despite apparent errors. Clear, transparency establishes user intent logging. What’s crucial is, instead of entire index logging, potent click attractions hold heavier relevance; user-query and actions focus on facet and sequence impact.
+
+Query transparency is pivotal—I’ll check query index. Queries like referencing URI show intuitive user action capture. Example: hover or click revealing interactions tied with higher indexing prospects.
+
+Demonstrating an interaction between users prioritizes preferred brands enhancing browsing depth, reflected directly in recent interests thanks to UBI schemas.
+
+Clear indexing queries steer us from batch to interactive personalization—seeing user interactive value steer mutual actions between schema and personalization for usability and fostering guidelines adhering tunnel other index calling, quickly running updates if node level infrastructure recommends direct write for quick syncs besides batch translation.
+
+We’re sharing progress, documentation with screencasts for better shared dilemmas and open-source foundations overhead in solving for industry buzz former promises. Revisiting GitHub misuse extends queries and resolves tested click tracking.
+
+Now, answering questions as pertains schema's reception stepping into personalization values more.
+
+Audience Member:  
+Thank you for that insightful presentation. Regarding data collection, have you developed a decoupled design for pipeline endpoint data ingestion? Something like Airflow or Kafka, perhaps, to make it versatile?
+
+Eric Pugh:  
+Yes, that's a direction we're spanning forward in. Leveraging OpenSearch's standard pathway makes adaptation easier—your existing strategies stay undisturbed. Schematically designed to coexist regardless of the ingested software, adapting to collect what aligns with your operational strengths. What do you think, Stavros?
+
+Stavros Macrakis:  
+Searching under a second on latency is our current ambition, positioning relevance for good personalized responses unfolds more amazed from this grounding. It's full of considerations beyond strict time stamps or flexible reporting slides.
+
+Audience Member:  
+Thanks for your insight. At Reddit, we look into core schemas, extending secondary definitions for contextual domains. Your core reflects sound designation facilitating domain evolutions.
+
+Stavros Macrakis:  
+Exactly—it’s about coordinated tracks where core schemas aid ease of further extensions outside proprietary leads: anyone can implement, benefit, and, frankly, grow beyond singular cobbled paths. We welcome Reddit's experience backing these cutting-edge community evolvements. Thank you, everyone, for engaging.
+
+Eric Pugh:  
+Thank you, everyone. If there are further queries or discussions, both Stavros and I would love to continue after the session. Please feel welcomed. Let's ready for our next discussion in about 15 minutes. Thanks again!

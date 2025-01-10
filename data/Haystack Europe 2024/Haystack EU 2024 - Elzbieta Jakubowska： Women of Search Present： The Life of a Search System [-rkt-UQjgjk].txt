@@ -1,0 +1,121 @@
+**Host:**  
+One of the wonderful things about the Haystack Conference is that a few years ago, a group of women working in the field got together and recognized the need for more representation in the search domain, as there are not many women in IT generally. What can we do about that? We are only a very small corner of the IT world, but the Women of Search group has had a huge impact in encouraging, coaching, supporting women working in this field, and promoting their achievements. I'm very pleased that today, in our regular women of search slot, Ella is going to talk about "The Life of a Search System." This is a presentation compiled by the Women of Search group, and Ella will be representing them. She has a group of very talented women behind her as well. Ella is a software developer who accidentally entered search about nine years ago and stayed there to all of our benefit. She’s Polish, she lives in Cracow, and she is an independent search consultant. Please put your hands together for the Women of Search and Ella.
+
+**Elzbieta Jakubowska (Ella):**  
+Hello, first, thank you all for being here and thank you for all the great talks we've heard so far. My name is Ella, as you heard, and I will present a collective work from the Women of Search. I will be reading a lot of slides because that makes me feel confident. A word of introduction: we all here are already in the search domain. Our expertise and experience vary, but we are not new to the topic. Many engineers, companies, and agencies are in their early stages, and we hope this presentation will provide some historical explanation, guidance, and perspective on the evolution of search systems.
+
+Let's introduce ourselves properly. However, our name, Women of Search, pretty much removes the mystery. We were founded three years ago in May 2021. We have two branches: EU and US. This picture is from our US colleagues. Our community is 257 members strong, and I had to update this slide many times because every day someone new is joining. We are a vibrant community dedicated to empowering and celebrating women in search and related tech fields. We provide a platform for networking, mentorship, and knowledge sharing. Here is our Slack channel. Please join if you would like to. You don't need to be a woman; just if you want to be part, please join.
+
+Whenever possible, we take pictures. One of them is from the last year or two years ago; I stopped tracking more pictures and some updates about us. There is a happy hour group which continues on the very first Wednesday of each month at 9:00 a.m. PT. Totally voluntary, we talk about anything, literally anything. There is a typescript working group founded and led by Moon Lim from South Korea; time zone is a bit challenging, but we made it. 
+
+So let's zoom in on our talk. The big idea is an analogy that came to our minds during a brainstorming session. A search system is like a living organism. It starts simple and can't escape inevitable evolution. The only challenge is that fast-paced mutation gives rise to chaos and complexity. The options are extensive.
+
+A word about the evolution of search, in a chronological way. In the last 24 years, many things have changed in our industry. Pre-2000, we were focused on pattern search and exact search. Then in 2000, text analysis became important. In 2010, natural language processing emerged. These are just ballpark figures, so don't keep us fixed on the exact dates. Multi-word synonyms in 2011, personalization became a big thing in 2014, named entity recognition in 2015, learning to rank in 2017, all about semantic search, and since 2022 till now we are in multimodal, multilingual model-assisted search. Since 2011, we entered the era of data-driven factors. 
+
+First, we will look into search in the grand scheme of things, then how things usually evolve, some adjustments to improve the state of things, up-leveling, and a few pieces of advice from us.
+
+In the beginning, you are just here: you have a data store, a bunch of unstructured data, structured documents, images, audio files, streaming data, and probably much, much more. But you want to get here: you want to have a secure fancy search system with fancy index pipelines, low latency, a beautiful UI, and a happy user in the end. How to get there?
+
+Okay, firstly, we begin with a typical story of building a search system. Things are rolling. When you are new to the topic, this is a little bit of a storytelling part, and I’ll be reading a lot of notes because it is easier for me, and I don't want to ruin it for you, so prepare.
+
+How it usually starts: first, you take your data and push it somehow to the search engine of your choice, probably in an offline batch mode, on-demand, or on a schedule. Then you build some backend search logic and expose it via search API to query data. The next step is building a fancy or rudimental UI. Soon enough, you will notice that data processing becomes a bottleneck. The volume grows and becomes so enormous that it pushes you into constant write operation mode, so you'll scale up and scale out the entire platform. The money counter is ticking.
+
+Product requirements force you to switch from offline processing to online, so you build a new data processing platform that adds even more write pressure. The money counter goes up. You realize that probably not all changes should trigger an update, and not all of them are equally important, so you add checks, delta checks, and priority concepts. Somewhere during that process, you notice that data quality is not what you expected. You invest in data enrichment and data augmentation, the focus is on adding more signals to existing data, the more the better, right? The AI and all the big guns are pulled out. The money counter doubles its speed.
+
+Finally, the data quality becomes a hot topic in your team; content sanitization and deduplication are implemented. Sadly, only now, and someday there is a doomsday: the search engine crashes on you and you lose your data. The search engine was an authoritative source of truth. There were no recent backups, and the pipeline from the source takes three days. Not a good situation.
+
+The quality of search results bothers you all along. The simple user tracking tool you put in place for measuring KPIs shows low CTR, low success metric, or low engagement. You can point out some obvious problems with results. Tempted by an easy fix, you apply the hack into the search API or directly into the search engine query, but that does not scale and you know it. So you start collecting underperforming queries in a spreadsheet. There are too many to keep fixing them in the codebase independently, and the outcome is hard to predict. Your approach evolves: you build your own or use existing tools to manage your queries and override or tune the system's default behavior. This can quickly get out of control, and you end up with two parallel search systems: a back-office system and a default search that may override each other.
+
+Following trends and mainstream media, you are tempted to incorporate new technologies: you integrate with AI services, hoping for better query understanding, query enrichment, classification; you build them yourself in a more risky approach instead of using integrations. 
+
+Anyway, spending money reaches the next level; the desperation level hits new highs. Despite all that time and effort, the return on investment stays low while spending money gets insanely high. You start realizing that the changes you need are more fundamental and technology-dependent. Intrigued or forced, you start exploring how the search engine of your choice actually works and how to operate and tune it. You discover a variety of search functions and their usage.
+
+At some point, you read that pushing data efficiently into a search engine is insufficient; it needs proper modeling, aka design for search, and here congratulations, you have started connecting the dots and experimenting with different mappings and search logic. Your time investment results in your very first search strategy—it could be a greedy algorithm with small boosts on specific fields or a multi-stage pipeline. It doesn't matter; you are proud of it as it clearly fixes the problems at hand. Full of hope, you deploy it to production waiting for a big breakthrough, which doesn't happen, and instead, you have unwanted side effects. Finally, you get trapped in a cycle of failing attempts.
+
+Our story continues on another slide. This is a long journey. After a few dozen attempts, you notice a gap between your test queries and production. To be more successful, you are missing your actual user's queries. So you invest in building a query log. If you are lucky, queries from production are close enough to the ones you tuned for. If not, you need to start again with your improvements—it's an iterative process. After a few iterations like that, you probably suffer from long cycles—your goal now is to confirm progress or at least prevent regression quickly. So you invest in a better test environment where your ideas can be validated quickly before they hit production.
+
+What is missing here? That's the validation set against which you can predict better outcomes of your improvements, and some way of measuring or quantifying the change. Luckily, you quickly realize that data is already available—that's the user tracking you have for KPIs. Probably some important details are missing in that data, for example, filter usage, returned document IDs, or sequence of actions not combined into a session. But after some adaptations, you can finally incorporate that crucial data into your offline laboratory.
+
+Other essential components of this lab include a golden set of queries and judgment lists. All those mechanics make you faster but not necessarily more successful. Something is missing here: the attention now lies on the last piece untouched so far—the UI. What you do here is patch things out to connect users to the results you want them to have. Lastly, you just remove the "sort by relevance" option. 
+
+Now, let's take a look at possible adjustments to what we have seen. Where can you apply a few adjustments just to improve the state, not dramatically change it, but improve it?
+
+**Ella:**  
+On data quality and storage: Centralize all in-flight processes and focus on producing a custodial data warehouse. What are the benefits of it? Own the data flowing through your system. It's an authoritative source of truth. Changes are being tracked; you know who changed what, when it happened. Standardized data with unified quality standards. This can be your answer to indexing the same information multiple times from different sources, each with a different quality. Control the rate and throughput of your writes; don't be reactive. Perform costly operations only once on the standardized data.
+
+On tracking user journeys: Invest in tracking users before and after their search sessions; join events in a search session. This is a high-effort but also very high return investment. Use data to understand users and prioritize fixes. Define a universal schema for events. Use it for personalization and machine learning tasks. Use that data to measure offline relevance.
+
+On building and testing frameworks: Create frameworks for offline and online experimentations; build both of them or at least one. Also, create a golden set of queries to measure your gains. For e-commerce, these can be 'iPhone' queries; never break the 'iPhone' queries. Sor, yes, manual data set labeling still matters. Standardize analysis for easier comparison of experiment results. Choose the right offline metric or metrics and monitor alignment between offline and online metrics.
+
+On manual curation and override systems:  Occasionally override the default behavior of your system. However, use it sparingly; it's just a temporary fix. It's most useful when users exhibit brand new search behavior and in specialized domains like medical fields. It can really save your day.
+
+On strategy at some point: Split retrieval from the whole search strategy. Documents designed for search need to support your search strategy. Model your data as you will be searching in it. Have a fallback when the fancy things need an emergency shutdown because sometimes they do.
+
+On ranking strategy improvements: Speed ranking is the second sequential stream. Rate candidates based on business values and quality checks first. Apply your own personalization data points in the search tracking before you try using third-party services. Learning to rank is great; try first with an offline approach before going online, which is more costly.
+
+Level up: When are you ready to level up your search and bring it to the next level? Do you have lots of unstructured data? A pretty good end-to-end search system in place already? Enough engineers to green-field a new project? A sizable budget for vector search databases and LLMs? If your answers are yes, you might be ready for Gen. How can you use it to your advantage and enrich your existing search results with semantic results? Build a rack chat interface, include rack-based signals, generate "Did you mean" candidates, augment spell check, and generate keywords metadata.
+
+On building a knowledge graph: Do you have data with inherent hierarchical relationships like e-commerce categories or specialized vocabularies? Do you have specialists that can help with the information science aspects? If your answers are yes, you might be ready to build a knowledge graph and use it to disambiguate user intent and increase recall by pulling overarching concepts. 
+
+Our advice: Introducing need-driven development (NDD) — build what you need, as you need it: no sooner, no later. Start small and simple, pick the easiest tool for the job to get you started now. Try to max out your technology before migrating to something else; technology is just a medium toward your goal. Read, research, exercise questions, and options. 
+
+Don't forget: Measure something—anything that you can benchmark against. Use what works for you. Limit entropy of your technology stack. Don't take shortcuts on data; it won’t pay off. Don't overstate the impact of new technology but don't be ignorant. Don't build rigid systems; search is not a coliseum. Remember need-driven development.
+
+**Host:**  
+Wonderful, thank you, Ella! Extra points for delivering a deck built by a group of people, which is never an easy thing to do. And that was one of those decks that, if I could show it to my customers at the very beginning, would be a very lovely thing to do. 
+
+We’ve got a question from online to kick us off. Someone asked what does it mean by "split retrieval and rank"? 
+
+**Ella:**  
+Well, maybe if you have resources you can do it organizationally, but when you are new into technology when you start, you just put everything into one bucket and hope it will work somehow. You may not even realize that there are actually two concepts: how you retrieve and how you rank. So if you want to be more specialized, you can split it organizationally or even do it iteratively. Still within Elasticsearch, but please keep in mind that they are two separate streams.
+
+**Audience Member:**  
+Thank you for the great talk. Have you had experience with clients or out there in the real world with knowledge graph learning and actually serving it alongside your search engines? It can really help with query understanding, but maybe a more practical story might help.
+
+**Ella:**  
+Yes and no. So explicitly on that, our friend Audre worked on those slides. I will happily take this question and she'll get back to you with the answers. I’ll note your email or LinkedIn. What I experienced with knowledge graphs is for e-commerce. It was really for just traversing the graph to get better attributes for the products. That's my limited experience with knowledge graphs, but still very useful for e-commerce. That’s how we used it.
+
+**Audience Member:**  
+I’ve seen that, especially for query understanding or query interpretation. You would need an explicit hierarchical way of how each query decomposes. This is very useful, for example, with medicine and finance and insurance domains. I feel like people usually feel tempted to try things out as Ella has beautifully captured on the slides. I think the whole idea was that things that work for some domains might not be applicable to others. There are no rule of thumbs. So try it out at a smaller scale and then scale up. I think that was probably the idea.
+
+**Host:**  
+Great. Somebody online has asked: Great slides, will you share them?
+
+**Ella:**  
+Of course, all the slides from all the talks will be shared on the Haystack website. Anyone who bought a ticket will get early access and then we'll share them all publicly in a few weeks.
+
+**Audience Member:**  
+Hi, thank you for the great talk. I was thinking about maturity in my organization and the system that says, "Okay, you're here, and then you could do this to go to some better options." Out of those six steps, which could be the most impactful one?
+
+**Ella:**  
+That's good feedback. I promise we'll make those changes and they will be included in the presentation.
+
+**Host:**  
+A minor plug for Open Source Connections: this is exactly what we do with a lot of clients. We have a maturity matrix that covers a lot of those things.
+
+**Audience Member:**  
+Thanks for the excellent talk on data quality. Do you have any practical experience from one of your clients about data quality? For example, we’re in a situation where the search engine part is up and running, but it's not necessarily unstructured data; it's maybe unlabeled or doesn’t have all the features and filters we’d like. It's hard to convince our stakeholders to spend the copious amount of time labeling it because the search is bad, but we can’t improve because the data isn't labeled.
+
+**Ella:**  
+Yes, you're referencing data labeling, right? It's very hard; none of the clients want to pay for it if it can be seen on the UI. It’s seen as a low-level investment. Luckily, I’ve worked with POS that understands the importance and helps convince clients that this investment is worthwhile. If you can’t have it easily, there are companies that can do it at a substantially lower cost. Within the organization, try to synthesize the dataset you have, take another approach. Think about the queries; we heard about this concept at this conference, queries you can use to describe the search results you’d like to have. Use those queries as labels, but it depends on what data you like. If it’s labels in type of categories, that may help, but it's garbage in, garbage out. Educate those dealing with data on what search needs; explain how a search engine works. Sometimes showing a small piece significantly improved by data cleaning can serve as evidence. 
+
+**Audience Member:**  
+Excellent talk, thank you. On the life of a search system, how are organizations usually shaped in process when a search team is created, grown, split, and when consultants are brought in?
+
+**Ella:**  
+I think it may be revenue-driven. For some companies, search is core, and they take money out of search as their revenue stream, so they understand its importance and invest. For others, search is a sidetrack, making internal signals contradictory, with CEOs seeing it as a side hustle. Money convinces people. If not, user complaints can push changes.
+
+**Host:**  
+We've got a question online. In a marketplace where items are unique, and a sale removes it from the search engine, any tips for obtaining judgment lists or golden query sets with such a use case?
+
+**Ella:**  
+It's a great question common in marketplaces. It's not about a judgment list for a specific product that disappears, but about clustering similar products. If you have one rare product, you likely have others equally rare. Extrapolate, find another cluster, and address the topic as a whole.
+
+**Audience Member:**  
+You said human judgment labels play an important role, but they're expensive to generate. What about employing advanced semi-supervised labeling approaches?
+
+**Ella:**  
+Yes, interesting point. While I have no direct experience, it’s worth considering. However, manual labeling is unavoidable at some stage because even automated solutions require initial manual data.
+
+**Host:**  
+Do we have any more questions? Well, thank you all. Please, thank Ella again.

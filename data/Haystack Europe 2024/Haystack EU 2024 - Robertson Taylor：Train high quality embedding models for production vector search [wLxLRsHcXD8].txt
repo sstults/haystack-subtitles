@@ -1,0 +1,196 @@
+**Host:**  
+All right. I would like to welcome our next speaker on stage, Robertson Taylor. He works as a Solutions Engineer at Marqo, and he will speak about vector embeddings and training high-quality models. Thanks, and please welcome Robertson.
+
+**Robertson:**  
+Thank you. We're going to start with a little bit of audience participation, so sorry on Zoom. Who's enjoyed Haystack so far? Easy question. All right, now I see who's not going to answer. Who has embedding models that they're using in production for retrieval? Who's using multimodal embeddings? Who's fine-tuning those embedding models? Okay, interesting. Always good to see.
+
+For those of you who raised your hand for using the embeddings in production and didn't raise them for fine-tuning, I hope that this talk will convince you that maybe the pre-trained model you're using isn't correct. There are a lot of considerations to go into it, and taking a look at how you can get a continuously improving embedding model pipeline into production is actually really important to drive results.
+
+Let's take a look at the embedding retrieval landscape. It's a tale as old as time, at least for the last three years. People come in, they look at Hugging Face leaderboards, they choose a model they're like great, it has wonderful MTab scores or it's leading the benchmark for my domain-specific thing, and they decide to run an embedding model. They have a vector database, and all of the industry's effort seems to be going towards making these pieces more performant. But that doesn't give you higher-quality results; it just gives you potentially bad results a lot faster, and the line goes down a little bit faster. That's what you're getting.
+
+There are a lot of questions you should ask when selecting this initial base model like how was it trained, what data is actually in the training set, was it trained for symmetric or asymmetric retrieval, and really just like where are you starting from and where are you trying to go? Are your goals aligned?
+
+This probably looks familiar to all of you who have models in production. You probably started with a proof of concept, probably had an off-the-shelf model, probably had some configuration, tweaked it a bit, added a small sample of data and then decided, cool, the results look good. What I'm guessing most of you saw was that as you start adding documents to the vector database, those POC results don't necessarily translate into production. You might tweak the search settings a bit more, you might index all of your documents, get into some pre-prod environment, and you might have some ETL pipelines, have to set up some monitoring to make sure that when it does go into production, it actually stays up. You might give a few vibe checks, look at the results, make sure everything's good, and hopefully run some of your existing IR metrics against this pre-prod data set.
+
+This is where a lot of people wind up realizing that fine-tuning a model becomes necessary. I mean a ton of steps there. You're basically building a new MLOps pipeline to get embedding retrieval trained into production. You're setting up probably ETL, probably stitching together different things, deciding which features are relevant, selecting a base model, getting the training infrastructure set up, and then constructing some offline evals and iterating. Hopefully, at that point, we can get to an A/B test, lock in the search config, and align on what we're actually trying to drive and then measure in a real-world setting. Is this actually working? Then you get to MLOps maintenance, but then you also need to figure out, can we iterate and continuously improve this model because it's a new retriever? You wouldn't just put your Elasticsearch instance into production and not play around with boosting or not play around with how the queries are being constructed.
+
+We think there's a real garbage in garbage out problem with a lot of customers that we talk to. This ANN graph might look really familiar, but the gist of what I want to get out of this slide is there are a number of nodes at the bottom. You're hoping that the nearest nodes are actually right. You get back some results set, you might have a different search model and a different embedding model. You might train these separately, but what really matters at the end of the day is for a given search, are the nearest neighbors actually relevant, and how do we actually get the correct distance between items that should be collocated and the queries that represent them? What you'll see is a lot of training regimes don't actually have this explicitly encoded. It's a very incidental relationship.
+
+If you take a look at this standard CLIP training, we have this bi-encoder that everyone's talking about, a standard two-tower model where we have texts that represent an image, we have an image, we break it down into patches and the end result is that we should minimize or we should maximize the diagonal and try and minimize all the off-diagonal results. Hopefully, what we get is when we present these items in some sort of space, that Pepper the pup is the closest item to the actual image. This doesn't really sound like retrieval though because it's not. It's this incidental relationship where the text is close to the image, but does this generalize to a query? Like if I said, cute dog on the grass, there's no real encoding of that into the training regime. We just have these images in the alt text.
+
+If your domain is really well represented in that training data, maybe you're on like a stock photos website where the training process has seen a lot of your data and has a good idea of the relationship between the alt text that represents the image or the stock photo description and the image, then it might be great off the shelf, but you can do better and you can do better for a lot of reasons. We have these binary relationships that are trained with this bi-encoder process, but there's no real notion of rank. When I look for an SLR camera from the CLIP training, I can get back an image. This relationship is pretty decent, but I don't have any understanding of the magnitude of that relationship.
+
+If I want to represent a full product, I might have many different constituent parts like the metadata that represents it, might have categorical data, might have a description, I might have multiple images. The model hasn't been trained in a way to get this single vector-fused representation. You need to be able to represent the items with all of their constituent parts, but then you need to understand the magnitude of the relationship. If a camera is purchased 1,300 times, it's a much better result than a camera that's purchased five, and that's really domain-specific. If I run a budget camera shop, the items that I get back should be very different than if I'm running a sort of high-end camera store.
+
+It's an interesting problem if you want to experiment with it. We do have a dataset, it has about 10 million rows of data. It's split down into queries as well as about 100 products per query. It contains ranking information, it also has about 5 million unique products. If you want to take a stab at doing better than we're doing with our regime that we'll talk about in a few minutes, please feel free to give it a go. It's all open source, along with the training approach that we used.
+
+We get to this point of wondering if embeddings can actually incorporate rank and what that looks like. For simple use cases like a rag application where there is a true one-to-one relationship between an information need and the document that I should get back, like what is the atomic weight of gold, has an answer. Maybe you don't need this rank, but for one-to-many relationships like you see in the real world, especially in things like e-commerce, a query like "men's sweater" is very ambiguous. We need to have some way to discriminate between the results that we get back and return the ones that are relevant. What that means in the embedding space is we need to be able to encode the similarity as part of the angular relationship between the items.
+
+We made a way to do that. There's an arXiv paper, there will be a QR code at the end, don't feel the need to stress out about typing it. The way that we've approached this is by deconstructing the problem into a left-hand side where we have what could be your query, and here it's one part, but this could be many parts. You could, for instance, have a full product representation and the left-hand side that's the query to do personalized search. On the right-hand side, we have the objects that we're trying to retrieve. In this case, we have a cat, it has a title, it has a description and we need to have a training regime that actually allows you to get this inner modality relationship as well as the inter modality relationship.
+
+From an inter modality relationship perspective, we have a text encoder that takes in the metadata representing an object as well as the left-hand side, in this case, the query. We see that we have this matrix over here that's very similar to the matrix you saw on the CLIP embedding side, but we also have this weighted ground truth matrix. The weighted ground truth matrix can be seen as kind of like a collaborative filter except the goal is to generalize so that when we get an embedding out, we understand how to encode the ranking information inside of it. This is learned throughout the training process. The idea is that we need a generalizable way so that when we see a new document, when we see a new query, we're actually able to understand how it should rank, how it should perform for a given query and what it's related to.
+
+If we break it down this way, we actually get a ton of different use cases for embeddings that aren't just the standard sort of semantic search use case. We do have that search; we have SLR camera, we can use a business metric that informs that weighted ground truth matrix, in this case, add-to-carts. We can say that this is the relevant product metadata, and it's all in a box because this is a single vector representation. We train the fusion into the representation. We can handle recommendations, so we can preserve the query-to-document relationship as well as introduce a document-to-document relationship. Things like entity resolution and deduplication become possible. You can see that the Canon camera here is related to the full-frame mirrorless camera; these are likely duplicates, so it has applications to things like marketplace content.
+
+Conditional search is one that I think is actually really cool. The idea is you can train a subdomain behavior in the model, so if you have a USA marketplace, the ranking of items might be different than in a Japanese marketplace, and by prefixing and training that prefix into the model, we can actually get a conditional search and personalization. That single query plus document representation returns an individual lens classification; we can invert the relationship, store the actual tags for categories inside of the vector database, and then the query becomes the documents that are coming in. All of these are things that we have done and are interesting things that you can do when you kind of deconstruct the bi-encoder into a left-hand side and the right-hand side.
+
+But you need data, and there are a lot of different types of data. If you're just starting out, you might only have access to external data, like some Hugging Face datasets, some stuff on GitHub. Potentially you have some documents with the relevant metadata, maybe you wind up enriching them, maybe you use some of the LLM-assisted augmentation of the records where you say this is the category for this, or maybe you actually take the document and do some sort of visual reasoning over it and try to get some queries out of the document. This is okay. What really helps is getting actual production search logs and getting actual relevance judgments from your customers. So based on the actual business data that you have, who’s added this to cart, who’s interacted with this, what's the dwell time on a page after someone clicks on this item? You can start to really understand how to make a domain-specific model.
+
+But you have to do a ton of stuff, you have to clean a ton of the standard stuff you see, deduplication, and in a multimodal use case, you also want to make sure that you have no corrupted images, you want to kind of freeze the dataset so you're not using URLs or something where the data behind the URL might change. Filtering removes low-intent information, so sticking with e-commerce, because that's where I spend a lot of my time, things like click-through rate can be really weak signals and incorporating them into your training can be really noisy. Sticking to a metric that's either driving some sort of intent behavior like a purchase or discovery behavior, like clicking through dwell time, is really useful.
+
+And augmentation is also really powerful. In the multimodal use case, that deduplication use case you see becomes a lot easier when you actually start to take in the images and augment them because the right match as an image is very similar to an existing image. So if you just augment the image and train against this augmented image-to-image pair, you can get a lot of this natural matching and transformation. Image resizing, getting everything into a consistent shape so that the training process becomes really streamlined.
+
+Splitting—we're going to spend a lot more time on creating eval splits later—but there's a lot of consideration that goes into this that should go beyond creating some sort of 20-80 split and hoping the model does okay.
+
+What you get is a result set here that looks something like this, where we can see the query cat, we can see that it has a ton of interactions. We can see for dog, the same product ID has no interactions. It’s probably a cat collar, and this should be trained into the model, but there are a few things to keep in mind when you're constructing these result sets. Namely, temporality is present in a lot of domains, so if you're running this e-commerce store and it's Berlin in the winter, you probably want to get the seasonality of the products baked into the model, where the results in the fall might be different.
+
+You can use these outcomes as relevance judgments, so you can start using your user interactions as a judge of relevance rather than relying on some sort of human-labeled dataset. Often this comes with the benefit of driving those metrics up, so if you choose to—in the eval and training process—use the metrics that you're actually looking to improve, then you have better results.
+
+Oh, and the last thing is if you take into account these historical search logs, you get to avoid this kind of cold start problem that people see with off-the-shelf embedding models. You can train your existing good results into the model, maybe as part of the filtering step you look at the historical data and find items that will have really high signal while getting the benefit of this embedding retrieval for results that you're not particularly happy with.
+
+But which business metrics do we choose? You can see there's a conversion intent here and a discovery intent here, and this is one way to break down this e-commerce use case where a transaction has super high conversion intent, but kind of low discovery intent. Also, typically there are fewer of them. Add to cart is typically a really nice metric where it shows that there's some amount of discovery that's desired but also some amount of intent to actually complete a purchase, and you typically have way more of those. When you're looking for these relevance judgments, depending on the size of your dataset, you might have to compromise a bit on if you're driving a conversion intent metric, going a bit further on the discovery intent side, but the goal should be if we're trying to drive this conversion, then we choose a metric that's further along the conversion intent axis than the discovery axis.
+
+There are domains where this isn't as true, so if you're a physical-only retail store but you have an online presence, a lot of the behavior that you want to drive is actually discovery-based. We can look at how people are actually going through a website. Are they favoriting things? Might be a good metric to converge on, while things like click-through will still kind of remain a bit noisy.
+
+All right, eval splits. We see a ton of people come to us with these sort of 20-80 standard splits that don't really track how well the model is generalizing. We tend to break down the problem into four domains of novel corpus, novel query, zero-shot, and domain. Doing this allows you to figure out where the problem is if the model is not generalizing; sometimes it's only on the query side, sometimes it's only on the corpus side. This becomes more important if you do decide to start splitting out your search model and your corpus model like we'll talk about in the future.
+
+Being able to actually do offline evals that take into account documents that you have seen and queries that you have seen, understand the difference between those result sets and how they perform in this split—is really important. But the temporality is also something you should be keeping an eye on. We might have training data, we might know it's good training data, but keeping these temporally relevant windows of data allows you to actually understand, am I doing well right now? Is there a need to train a new search model? Is there a need to reindex all the documents?
+
+If you have the data volume, it's always really nice to be able to look at just a temporally relevant window, but if we split these temporally relevant windows in the same way, then we can start to subsample from them even with low data. I can say I want to create a new sample for evals, and I want to split 20% of the documents from an old window into the novel query bucket. Doing this makes sure that you're not skewing the evaluation by weighting unintentionally more towards one of these quadrants.
+
+All right, we've heard a lot about Matrioska representation learning over the last two days. The idea, I think, at this point is fairly simple. We have a base model—in this case, we'll talk about a CLIP model—and we can actually look at truncating this down into smaller dimensions. The real benefit here is we are trading off storage for speed and relevance. We can go down to really small dimensionality and try and find a good candidate set of results.
+
+A lot of the times people aren't actually looking at how this performs in production and baking this into their evals, so if you're going to do something like MRL, or you're going to do something like binarization, the real thing that I want to stress here is you should be doing production-aware training. We talked about training GCL in a way where we train for the fused representations, we train to learn how to combine the individual documents, but we need to be aware of this when we're doing these sort of storage optimizations as well. The results are on the slide after this, but yeah.
+
+There are a ton of things generally applicable. You can adjust for your storage needs after training, great benefits, but you are actually sacrificing performance at lower dimensionalities and you're not actually getting any sort of inference benefits. One thing that we counsel people on is selecting a model that has a dimensionality that's appropriate, partially because a lot of these models have a lower parameter count and it makes the training process easier as well. When we train in a way that's aware that at inference time there might be some sort of MRL happening, we see that the results become much better.
+
+On the left-hand side, we have a GCL train model, the approach we're talking about earlier in the talk. On the right-hand side, we have an MRL-aware GCL trained model. We can see that across standard search metrics, the degradation in quality becomes much lower when we have trained in a way that lets the model actually understand that we might be doing MRL at inference. So we can go down even to 128 dimensions and see really minimal NDCG gains or NDCG losses. RRR, ERR, and RPP all have similar results. Overall, this trend continues into binarization as well.
+
+Binarization, I'm a little bit more skeptical of. A lot of these storage reduction things I'm a little bit more skeptical of. There's a sort of step change that happens when you fine-tune a model, but when you're iterating on that fine-tuned model, the gains might be a bit more marginal, so you might be fighting for these sort of 3% increases in quality. Binarization and MRL can kind of both eradicate those over time. Going into this, being a little bit skeptical, but if you train the model again to be aware that you might binarize at inference time, the degradation becomes much lower.
+
+To understand binary quantization, we take a vector. It might have different weights or different values at each point in the array for the vector. These are typically float 32s, and we turn those into one-bit representations most of the time. Sometimes people use negative values, they do a one-negative-one split with a tanh activation. This leads to a lot of degenerate queries or degenerate representations, actually, because if you think about the hypersphere—in this case, just the sphere—that these embeddings are on, there's only n degrees of difference that are possible with this one-negative-one representation, whereas if you think about the one-zero, you actually have n-dimensional hyperspheres that are able to be represented. You get two to the d degrees of difference that you can represent with a one-zero model. Sigmoid activation is preferable to tanh activation, but you can reduce the embedding space dramatically by doing this binary quantization, 32x space improvement.
+
+To note, I think I'm done with that. All right, truncation-aware training here also, you can see the results are way more dramatic. We have this float float on the left-hand side, it's our baseline. Mixed float representation is all right, but when we go mixed binary, you can see that the drop-off here is about 17%. We see the same sort of degradation on ERR and RVP, and you're really eradicating a lot of the benefit. Unless you actually have billions of vectors that you're trying to store, I would ask myself, is the cost savings and storage savings actually worth it? Often, I think not. Especially when you look on an ROI-based basis, how much are you really saving by going down to binary? We typically see customers decide that it's not a win.
+
+All right, so we have a few different things that we can train in. We can do this rank aware training, we can do smaller, lower dimensionality representation, and we can do this quantization. Let's say we have a model in production. What does the continuous improvement pipeline look like? Let's say someone is on Canva, they've searched for a quote bubble, they've gotten back four items that all look reasonably relevant, but users only interact with two of them. We can start to aggregate that data, get our judgment list of what customers actually use and aggregate per query. We can take a temporal window of those queries using the scores to influence the results, and we can do a four-way split of the queries and scores and those buckets that we talked about before.
+
+We can do our offline evals and we can take a look and see if there's been any sort of improvement. Great. If you're doing this manually, it's not super scalable, and you need to have a way to evaluate many different candidates, which means that your offline eval actually has to be pretty good. Stick to the previously discussed split, use your standard metrics, use your business metrics in the evaluations. This is something that, for some reason, people seem to avoid. They seem to bucket things into relevant or not relevant, but missing out on an item that has 1,300 add-to-carts is very different than missing out on an item that has five, and that should be incorporated into your offline evals.
+
+Recency is great, but we should use that subsampling approach that we talked about earlier if there's not enough data volume to actually get a strong signal. Seasonality of these subsamples is also really important, so if you're running an e-commerce store and you're looking for jackets, a jacket in the winter might be different than a jacket in the fall. If you subsample across all these different buckets and don't try to maintain some of the seasonality influence, then the resulting models might not be great.
+
+Finally, you want to continuously improve on those offline evals, so measure the predictive power of your offline evals. How many times do models that pass the offline evals or show improvement in offline evals actually make it into production and actually do well? It's really important to make sure that you haven't introduced some sort of degradation in the offline eval process.
+
+The naive way to go about improving after this is cool; we have this. Let's say we put it in some sort of repeatable pipeline, we've trained many different model candidates, we get a candidate model, we deploy the model, we have to index a new database, we have to establish some sort of routing for online A/B evals, we have to do the actual online evals, and then we choose one. Great. This is way more expensive in an embedding retrieval use case than it is in a sort of standard lexical retrieval use case. The embedding process is actually quite expensive, and if you're doing this reindexing for every candidate model, then you're going to really slow down your rate of progress. Definitely better than nothing, but you need to have some sort of standard and flexible way to train these candidate models, or you can't even get here.
+
+After you get there, maybe you decide to do something a little bit more clever. Like we have these candidate models, we can sample from our existing distribution. Maybe we're trying to improve head queries with this new model. We can actually construct a query cache, so cache the query, cache the filters, cache the facets, figure out what embeddings are actually retrieved, and then when that query comes in at runtime, we can return results from the cached set and do an eval of if this new cached set of embeddings is actually potentially an improvement or at least not like a severe degradation. Doing it this way means that you can construct many of these query caches and have many of them running in parallel and evaluate which of these candidate models might actually be worth going to production in a way faster timeframe.
+
+Another thing that we see our customers do is to search with a different search embedding model and embed the models with a base embedding model. The reason this works is because the representation of the embeddings or the difference between the items isn't actually changing in a lot of datasets. If you have an e-commerce dataset, the jackets that have clustered together, their relationship to each other is often not changing. If we freeze the right-hand side of the model training process and just allow for a new search model to be trained, then we can take advantage of evaluating a lot of different search model candidates and also incorporating seasonal trends without ever having to reindex the vector database.
+
+A good example of that would be a query for iPhone. iPhone today is probably different from iPhone in two years. When I search for iPhone, I want to get back the most recent version, and I want to get the most recent version of accessories. We can get that behavior by just changing the search tower and changing where the embedding for iPhone actually points to at search time and keeping the document representation the same.
+
+Where this doesn't work is in a domain where the relationship between items might actually be relevant. If I have a news story, or let's take the Olympics, for example, the name of the Turkish sharpshooter probably should be related to other sharpshooters after the Olympics, and prior to the Olympics, that wasn't the case. Here we have a case where the underlying representation points to a different place and the search query points to a different place as well. If that's the case, this approach doesn't necessarily work, but typically, because it's a symmetric task, we can actually freeze just the right-hand side and train a new model for the search side.
+
+Some important notes here, the models that you train to do this should start from the document model checkpoint, and then you just take a temporal window, assuming you have enough data, and then you can get those seasonal trends while also starting from the same place from a document embedding checkpoint standpoint.
+
+I've said a lot of stuff about how we train models, but I'd be asking if the approach actually works. Here we have the GS 10m corpus that we talked about before, and you can see that BM25 has about 0.7—oh, I lost my labels here. I believe this was NDCG. Yeah, this is NDCG—0.7 NDCG, pre-trained 0.1 NDCG, GCL and domain 0.6. As far as generalization, you can see that for novel queries, we do quite well; for novel corpus, we still do quite well; for zero-shot, it’s just kind of a slow curve down like you'd expect. We have pretty remarkable performance increases in each category, which makes sense when you consider that Baseline BM25 doesn't have any sort of ranking information and NRA doesn't have the original pre-trained CLIP model.
+
+In production, we kind of see a similar trend. Here we have an example of a customer with a GCL-trained model. They're using conditional embeddings. They're a marketplace, so in this case, they're segmenting things out by marketplace. Instead of NDCG here, we're just looking at cumulative gain versus K, where K is the number of items retrieved. K1, you can see that the pre-trained model starts off pretty poor, and as we go up here, this means that we're returning more relevant results in the first slot. You can kind of look at the arc of the graph here as well to see that for the pre-trained model, it's not like you go further out in the result sets and start retrieving items that actually could be relevant for the ranker. As we start iterating here, you can see that this curve goes further and further up and starts plateauing later, which means that we're still returning relevant results way further out into the result set here.
+
+This is quite important because a lot of people seem to think that they can just solve a lot of the embedding rank-based problems with rankers, but that doesn't really matter if you're never serving relevant results. If you're never giving good candidates from the vector retrieval to the ranker, it's not going to solve that problem. This is kind of what we've seen play out in practice, where people will put in a pre-trained model and they'll get back these huge result lists because they're like, hey, maybe the first few results aren't right, maybe the rank's not there, but we can just return 400 items and then the reranker is going to solve the problem.
+
+The way that this plays out in practice, especially for customers with tens of millions or hundreds of millions of items, is just returning 400-500 results isn't enough. You need to be able to say that this is a relevant item for our domain, and that's where we see people start to have performance benefits with embedding models.
+
+I spoke really fast. That was 45 minutes at my hotel. Thank you.
+
+**Host:**  
+Thank you, Robertson. All right, any questions from the audience in the room for Robertson?
+
+**Audience Member 1:**  
+Hello, thanks for the great presentation.
+
+**Robertson:**  
+Thank you.
+
+**Audience Member 1:**  
+So let me ask you. When you were comparing the NDCG metrics—yes, this one—is the pre-trained model an open-source pre-trained model, or is it also a model fine-tuned with your data?
+
+**Robertson:**  
+No, it's an open-source pre-trained model. I think in this case it was the CLIP Lion 512 dimension model.
+
+**Audience Member 1:**  
+So have you ended up comparing your method with CLIP trained in your domain?
+
+**Robertson:**  
+Oh, trained in our domain? Yeah. I can get you some benchmarks after the fact, but the rank information becomes really important.
+
+**Audience Member 1:**  
+Okay, thanks.
+
+**Host:**  
+Okay, so there was a question from Sam online. He's asking, any recommendations on how to combine different user signals into a combined judgment score?
+
+**Robertson:**  
+Yeah. We have people who do this with functions of add-to-cart plus likelihood to convert on a particular item, and we don't really care what the score is, we just care that there is some sort of objective score. It does mean that you have to kind of continuously train different models with different score function candidates and then you can evaluate based on actual business metrics which one is successful.
+
+**Audience Member 2:**  
+There was a question here. So my question is more related to the machine learning side of the training. In CLIP, you usually have to train with huge batch sizes, and I know by experience that in e-commerce you usually have lots of class collisions when you train these models. You have multiple images that look pretty much the same with very similar descriptions. How did you deal with those cases when you were fine-tuning those models?
+
+**Robertson:**  
+Yeah. In this case, we had a really diverse set which kind of helps with that problem, but we have trained models for customers with really narrow domains; for instance, they might only have shoes that they sell, and in that case, limiting the batch size but also having class labels of what things are related and trying to make it pseudo-random to avoid potential collisions can help.
+
+**Host:**  
+All right, maybe very related to this question from Roman Duk online: How much data have you collected from the first iteration to the last iteration in this customer example to get improved results? I don't know which one was this customer example, but maybe you can...
+
+**Robertson:**  
+I can give an example. We've trained a model with a large American marketplace that had 1.5 billion rows of interaction data, which is like three times the amount of training data that was incorporated into CLIP. It works quite well. You can still incorporate a ton of items, but at really large data sizes, I would take a look at if reducing the amount of data to some temporarily relevant subset of information makes sense.
+
+**Host:**  
+All right, Trey. One point in the talk you mentioned that binarization of embeddings with folks you've worked with, they found it not worthwhile.
+
+**Robertson:**  
+Yeah.
+
+**Host:**  
+However, if you just do scalar quantization to int8 or something, it's whatever significant reduction in memory required versus relatively little recall you've given up. If there's rescoring or whatever, I'm just curious if you could expound on why they determined it's not worth it.
+
+**Robertson:**  
+Yeah. Let me see if I can go back to my benchmarks there. In our testing, we've seen, especially if we incorporate more information into the embedding space - like we want to encode the rank as part of the angle - that just going down to binary quantization loses a lot of that information. We have less ability to have these fine-grained query-to-document relationships that you can train into the model. We've seen pretty significant drops in recall, like 10% to 17%, after doing evaluations. I don't know if you've seen something different, but I'd be interested to take a look.
+
+**Audience Member 3 (Online):**  
+Usually not within date when you get further down.
+
+**Robertson:**  
+Yes, but like binary quantization for sure—I'm curious about other levels like int8, for example.
+
+**Audience Member 3 (Online):**  
+I was curious if you went all the way to binary because you'd obviously lose a lot of information. I was curious about other levels.
+
+**Robertson:**  
+Yeah, not just float 32. No, int8 makes a lot more sense. We're typically working with customers when we're doing this sort of fine-tuning process where very marginal changes in performance have really tangible revenue impact. When you compare the cost of losing some of that recall versus the cost of storing the vectors in full size, we often find out it comes out to be like a wash. But if you have billions of vectors, like you're not working in some sort of e-commerce store that might have probably peak hundreds of millions, maybe it makes more sense.
+
+**Host:**  
+Okay, thank you. One final question from the online audience, from Deba Mishra: Was the model trained in a contrastive learning setup only with binary labels—relevant or irrelevant—or based on various sub-categories like product seasonality and other combinations?
+
+**Robertson:**  
+Is that a question? I think so. It's basically two questions, right? So was it binary labels and did you have some segmentation on product seasonality?
+
+**Audience Member 4 (Online):**  
+Yes.
+
+**Robertson:**  
+We can incorporate many different pieces of metadata as long as you give us relevance labels. As long as you provide some sort of relevance judgment, that's fine. The approach has been constructed to try and find some signal from the noise of these different constituent parts of metadata. How much you weight those binary relevance labels, if they're incorporated as part of the item metadata, I don't really know why they wouldn't be. Was the question just two questions? So one was binary or non-binary labels, and then the other one was about the segmentation like subcategories.
+
+**Audience Member 4 (Online):**  
+Yes.
+
+**Robertson:**  
+On the binary versus non-binary labels, we often don't train with negative pairs. We just train with true positives. If we just erase the irrelevant results from the training set, we typically find that works a bit better than giving them some sort of negative weight. A lot of that might be skewed by our domain niche of working mainly in e-commerce where true negatives can be hard to find.
+
+**Host:**  
+Okay, I think I haven't answered the question.
+
+**Robertson:**  
+I'm sorry.
+
+**Host:**  
+All right, thank you very much, and let's thank Robertson again.

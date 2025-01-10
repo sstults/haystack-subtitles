@@ -1,0 +1,18 @@
+Lightning Talks from the Haystack US 2024 Search Relevance Conference:
+
+1. Henry Weller, Info retrieval vs info synthesis in RAG
+2. Mehul Shah, LLM-powered Unstructured Analytics
+3. Ben Trent, Optimized scalar quantization for vector search in Lucene
+4. Rajani Maski, Learning To Rank Lessons Learned & Best Practices
+5. Nick K, Searching Over Groups Instead of Multiple Indices
+6. Maya Ziv, Semantic search at a startup
+7. Denzell F, Make Vector embeddings Fast with Text-Embeddings-Inference
+8. Doug Turnbull, SearchArray
+9. Eric Pugh, Year in review for Quepid
+10. Brian Nauheimer, Open source ETL solution: Lucille
+11. Rene Kriegler, MICES
+12. Matt Overstreet, Langflow
+13. Praveen Mohan, Live demo: Choose the right ML search for your Business application (covering all ML infusions in OpenSearch) 
+14. Lucian Precup, Interact with your technical documentation via GenAI
+
+Haystack US 2024 brought to you by OpenSource Connections, Experts in Search & AI, offering consulting, training and specialist staffing - talk to us about your search & AI project at https://www.opensourceconnections.com .
