@@ -1,0 +1,5 @@
+Extracting information from complex document formats like PDFs usually involves a multi-step process, including text extraction, OCR, layout analysis, chunking, and embedding. This extraction process is resource-intensive, and the quality can vary, resulting in poor retrieval quality (garbage-in, garbage-out).
+
+ColPali, a newly proposed retrieval model, presents a more efficient alternative using Vision Language Models (VLMs) to embed entire PDF pages, including text, figures, and charts. The resulting contextualized multi-vector representations of the PDF page improve retrieval quality while simplifying the extraction and indexing process. This talk introduces ColPali, how to represent ColPali in Vespa, and ColPali’s superior performance on the Visual Document Retrieval (ViDoRe) Benchmark.
+
+Jo Kristian, Chief Scientist at Vespa.ai, brings two decades of experience building and deploying search and recommender systems.

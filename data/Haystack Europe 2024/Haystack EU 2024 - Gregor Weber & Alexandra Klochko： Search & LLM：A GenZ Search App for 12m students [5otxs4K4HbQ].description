@@ -1,0 +1,10 @@
+In today’s rapidly evolving digital landscape, where information overload is the norm, creating a search experience that resonates with Gen Z demands more than just relevance—it requires, personalization and adaptability. At Knowunity, an Ed-Tech startup with over 12 million students, we’ve are leveraging Large Language Models to further develop our search. Our search team consist of 1 PM and 1.5 Engineers.
+
+This talk will dive into the role of LLMs in building a Gen Z-focused search application, exploring the challenges, triumphs, and lessons learned along the way. We’ll showcase our real-world implementations, including:
+ – “Did You Mean?” with LLM
+ – Follow-up Question Generation using GPT
+ – Building a knowledge graph with AI
+ – Results page with AI summarised answer based on retrieved content
+ – Using GPT Vision to extract images from PDF content
+ – using LLMs to extract Keywords from UGC, and improving transcript quality of UGC
+ – show AI tools based on user use case

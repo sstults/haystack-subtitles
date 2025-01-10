@@ -1,0 +1,1524 @@
+0:00:07.440,0:00:13.480
+so one of the nice things about hych and our 
+little search Community is that we have people
+
+0:00:13.480,0:00:21.760
+coming back uh regular visitors to to hch or 
+even regular presenters uh so we can actually
+
+0:00:21.760,0:00:28.280
+track their search progress and see how they 
+go um one of them is Julian from wpop wopop
+
+0:00:28.280,0:00:35.200
+is the largest Spanish ctoc Marketplace and 
+he's talking about how precision and recall
+
+0:00:35.200,0:00:41.320
+relate to actual business metrics in their 
+experience and J the stage is yours thank
+
+0:00:41.320,0:00:57.080
+you all right thank you Matias and yes I'm Julian 
+French but I live in Barcelona so uh super happy
+
+0:00:57.080,0:01:04.160
+to be here I hope you will you will enjoy I it 
+will not be super technical uh the idea is that
+
+0:01:04.160,0:01:11.240
+you get some intuition about what we are doing and 
+also probably uh it will trigger some discussions
+
+0:01:11.240,0:01:17.000
+that's a little bit the goal I will not talk 
+about llms or rag or anything like this I hope
+
+0:01:17.000,0:01:23.880
+uh you will still for example I would ask you to 
+wear your user hat no think as if you were a user
+
+0:01:23.880,0:01:31.280
+not really an engineer or anything like that okay 
+so uh Maas already introduced wapop so we are a
+
+0:01:31.280,0:01:40.640
+leader in secondhand and unique Goods Marketplace 
+in Spain also in Italy in Portugal and actually
+
+0:01:40.640,0:01:46.840
+search is a very challenging topic for secondhand 
+marketplaces we have very specific challenges
+
+0:01:46.840,0:01:54.120
+uh in this area and if you are interested we can 
+discuss it later as well I will not spend too much
+
+0:01:54.120,0:01:59.240
+time on this actually what I will present here is 
+not exactly something we have done specifically
+
+0:01:59.240,0:02:03.960
+at wapop it's not a project that we have been 
+doing or anything like this and everything does
+
+0:02:03.960,0:02:13.240
+not relate 100% to wapop okay so take it like a 
+general discussion let's start by a very simple
+
+0:02:13.240,0:02:20.320
+example okay I'm looking for a chair very very 
+simple maybe today we need a few more actually for
+
+0:02:20.320,0:02:29.840
+the conference so we can buy on on wapop um I'm 
+looking for chairs and we have this set of results
+
+0:02:31.200,0:02:37.440
+uh obviously there are some results that 
+look okay the ones in the Middle look like
+
+0:02:37.440,0:02:42.760
+accessories not so good and the one on 
+the right hand side look more like desks
+
+0:02:42.760,0:02:47.880
+probably they sell the desks with the chairs 
+that's why they are matched but doesn't seem
+
+0:02:47.880,0:02:54.800
+so so good now if you you are a user you are 
+not like an engineer or anything like this
+
+0:02:54.800,0:02:59.840
+do you think this result is good for for you 
+you can raise your hand if you think it's good
+
+0:03:00.920,0:03:10.840
+wow and if we only look at the two first results 
+is it good for you yeah a little bit better now
+
+0:03:10.840,0:03:18.400
+if you look at you're not a user you're the CEO 
+or I don't know CTO maybe as well uh what do you
+
+0:03:18.400,0:03:24.840
+think is it good or not so good yeah it's maybe a 
+little bit better especially if there are some of
+
+0:03:24.840,0:03:31.280
+those ads that are promoting like this morning we 
+have seen with the friends from o some of the ads
+
+0:03:31.280,0:03:36.480
+usually are promoted for different reasons and 
+you want to give more visibility to Those ads
+
+0:03:36.480,0:03:41.920
+and maybe that's what's happening to those desks 
+here they are here because of they are promoted
+
+0:03:41.920,0:03:50.040
+or not I don't know okay so um overall I guess 
+you all know what precision and recall is we will
+
+0:03:50.040,0:03:55.440
+uh talk about it a bit later as well it's a very 
+old problem but it's still very important today
+
+0:03:55.440,0:04:00.880
+and especially in those two context e-commerce and 
+marketplaces but not only can also apply to other
+
+0:04:00.880,0:04:10.200
+places so as similar to like in many social 
+media feeds uh many search results Pages look
+
+0:04:10.200,0:04:15.280
+like infinite Scrolls no you you can you start 
+searching you see results and you keep scrolling
+
+0:04:15.280,0:04:23.000
+scrolling scrolling you can scroll forever you 
+will always see results no and this is why no when
+
+0:04:23.000,0:04:27.960
+you think about it the first part usually it's 
+very precise very precise oriented but when you
+
+0:04:27.960,0:04:33.880
+keep scrolling down you will end up seeing random 
+results very likely and this is more what we call
+
+0:04:33.880,0:04:41.480
+here the recall part now and why do we want to do 
+this now of course there is like many companies
+
+0:04:41.480,0:04:47.840
+want to to Foster discovery of the users to keep 
+them engaged and so that they keep scrolling in
+
+0:04:47.840,0:04:54.800
+order to maybe discover some interesting results 
+at some point and the second aspect is that uh
+
+0:04:54.800,0:04:59.960
+many companies like like us we want to avoid zero 
+or very few results because it gives a very for
+
+0:04:59.960,0:05:06.480
+experience probably the worst thing you can show 
+to the user is an empty screen page so we I think
+
+0:05:06.480,0:05:14.920
+we we all know this and also we have seen this a 
+lot uh during today's talk uh now we often frame
+
+0:05:14.920,0:05:20.760
+search as to phases candidate retrieval and 
+then we have a layers of rankings and uh on
+
+0:05:20.760,0:05:28.520
+top of it and if we want to fit the ranking with 
+the right items usually what we do is we are we
+
+0:05:28.520,0:05:35.760
+have a candidate for trial phase that is kind of 
+relaxed no we we want to make sure we return all
+
+0:05:35.760,0:05:41.360
+the possibly relevant items to R rankers and 
+this leads as well to now having a huge list
+
+0:05:41.360,0:05:48.520
+of results that we want to rank the problem I 
+think we we all know it uh many users actually
+
+0:05:48.520,0:05:54.640
+scroll a lot and uh I don't know maybe you don't 
+have access to this data but we look when you look
+
+0:05:54.640,0:06:01.280
+at it you might be surprised they do scroll a lot 
+in the search results and so what happens is that
+
+0:06:01.280,0:06:07.440
+obviously they they end up seeing results that 
+are not relevant for them and another classical
+
+0:06:07.440,0:06:13.840
+problem of of search is when they start changing 
+the sort order from relevance to something else
+
+0:06:13.840,0:06:20.760
+bam it's it's you start to to really show 
+completely random stuff and this happens
+
+0:06:20.760,0:06:30.120
+when you really aggressively expand recall and of 
+course now in more modern times uh with the Vector
+
+0:06:30.120,0:06:36.400
+search or dense retrieval what happens is the game 
+has changed completely with respect to recall we
+
+0:06:36.400,0:06:42.000
+are those techniques are super good at recall and 
+maybe sometimes too good no you can always scroll
+
+0:06:42.000,0:06:46.680
+the same way as we said before and for example 
+in previous talk now that's what happened you you
+
+0:06:46.680,0:06:53.560
+don't know where to cut because you can always 
+keep retrieving uh results so we will look at
+
+0:06:53.560,0:07:01.720
+at those things uh from two perspective now user 
+perspective and more prec the user perception and
+
+0:07:01.720,0:07:10.880
+business metrics so let's go back to very simple 
+um Notions here precision and recall we we have
+
+0:07:10.880,0:07:17.200
+seen it before and then we will present what we 
+call user experience metric and in the second
+
+0:07:17.200,0:07:25.560
+phase business metric so precision and recall no 
+need to go too much into detail here Precision is
+
+0:07:25.560,0:07:31.320
+the percentage of return return items that are 
+relevant and recall is percentage of relevant
+
+0:07:31.320,0:07:38.080
+items that are returned and we know that they are 
+contradictory uh nothing new here okay so those
+
+0:07:38.080,0:07:46.800
+ones are I forget for now user experience metrics 
+actually it's something that maybe it's not
+
+0:07:46.800,0:07:56.000
+covered so much in in the search Community we talk 
+a lot about inds ctrs and so on but not really uh
+
+0:07:56.000,0:08:03.080
+looking at user satisfaction what do the users 
+think about our search and why is it important
+
+0:08:03.080,0:08:09.400
+well actually the search experience is way more 
+than just looking at a list of results and and
+
+0:08:09.400,0:08:15.000
+making sure that the order is the right one no uh 
+we have to take into account the whole experience
+
+0:08:15.000,0:08:22.800
+so it it includes uh for example suggestions uh 
+all the different tools you have uh you you bring
+
+0:08:22.800,0:08:29.280
+to your users to refine the queries like filters 
+you can change the sort order as you can see here
+
+0:08:29.280,0:08:35.920
+and and of course the for example spell checker is 
+another classical thing that you have to take into
+
+0:08:35.920,0:08:42.400
+account so those user experience metrics they 
+measure satisfaction of the users it's a very
+
+0:08:42.400,0:08:50.880
+broad topic but actually there is uh a lot of uh 
+formal Frameworks behind this no all these ux uh
+
+0:08:50.880,0:08:57.040
+Frameworks that um have been sted for a long time 
+they used a lot in different companies and we want
+
+0:08:57.040,0:09:03.960
+to see how it matches with our SE uh practice so 
+here I will just consider one very simple example
+
+0:09:03.960,0:09:12.640
+which is this pyramid of user needs no it tries 
+to model what is the the feeling of the users
+
+0:09:12.640,0:09:19.000
+depending on the maturity of your of your product 
+no on the base of the pyramid you have functional
+
+0:09:19.000,0:09:26.840
+it means your product is I mean it's functional it 
+works nothing more nothing less it's not broken uh
+
+0:09:26.840,0:09:34.720
+it works that's the the basic no the found of of 
+your product on top of it you have re reliable it
+
+0:09:34.720,0:09:42.040
+means uh it works but also it's stable over time 
+latency is acceptable uh it will not crash every
+
+0:09:42.040,0:09:47.440
+every two weeks and sometimes I mean it it sounds 
+like super easy but actually there are lots of
+
+0:09:47.440,0:09:54.600
+technical challenges here to make this possible 
+the next layer is called usable here and so it
+
+0:09:54.600,0:09:59.600
+means you provide all the tools that the user 
+needs to satisfy the need now for example what
+
+0:09:59.600,0:10:07.520
+we said before like good suggestion filters save 
+searches is another U aspect of it so we we are
+
+0:10:07.520,0:10:13.080
+not really talking here about the the relevancy of 
+the search itself no it's more what's what's uh on
+
+0:10:13.080,0:10:19.440
+top of it and then at the top of the pyamid 
+you have like you know it's more like purely
+
+0:10:19.440,0:10:26.120
+delightful you you provide a very nice experience 
+to the users you have this wow this product is so
+
+0:10:26.120,0:10:33.640
+cool it's fantastic and so this is really the the 
+end goal of user experience but what happens to
+
+0:10:33.640,0:10:39.880
+search and again here I don't want to generalize 
+it's not always the case but overall search is
+
+0:10:39.880,0:10:48.480
+a very common feature in many webs or e-commerce 
+marketplaces H users they know how to use search
+
+0:10:48.480,0:10:54.600
+it's not like it's not new know they there's a a 
+search box they type into it and they know how it
+
+0:10:54.600,0:11:02.400
+works and so what happens is usually for search 
+the users they don't have necessarily the need
+
+0:11:02.400,0:11:08.440
+of a delightful experience they just want search 
+to work as expected and to work well and that's
+
+0:11:08.440,0:11:13.040
+very important because it will conditionally 
+bit the the feedback that you get from your
+
+0:11:13.040,0:11:19.640
+users and you will see it in a second so that's 
+what I've written here now the the users usually
+
+0:11:19.640,0:11:29.240
+expect reliable accurate results whatever that 
+means and not necessarily delightful experiences
+
+0:11:30.360,0:11:37.520
+how do you collect those um ux metrics there are 
+lots of ways you can do it here are it's just a
+
+0:11:37.520,0:11:44.640
+little uh extract of it you can send surveys 
+to your users you ask questions like are the
+
+0:11:44.640,0:11:53.320
+search results relevant and they will rate yes 
+no um so so and you can ask a lot of question
+
+0:11:53.320,0:11:59.240
+actually and you can out of this you can extract 
+some some metrics that will tell you how satisfies
+
+0:11:59.240,0:12:06.120
+are your user by your search you can conduct user 
+interviews uh it's super insightful actually if
+
+0:12:06.120,0:12:12.240
+you have never done this I encourage you to do it 
+you sit down with some users and you you see how
+
+0:12:12.240,0:12:18.000
+the users are interacting with the search and I'm 
+sure you will be super surprised I mean we did the
+
+0:12:18.000,0:12:24.240
+the exercise and it's like wow they are not using 
+search at all the way we we are thinking it's very
+
+0:12:24.240,0:12:29.880
+different so but problem of user interviews is 
+that it doesn't scale it's very biased as well
+
+0:12:29.880,0:12:35.880
+depends on the user you select but still I think 
+it's more like from an inside perspective that
+
+0:12:35.880,0:12:43.080
+you you can use this uh I think you cannot read 
+it very well here uh you can also add feedback
+
+0:12:43.080,0:12:47.720
+components in your search results and asking your 
+user do you like it do you like it blah blah blah
+
+0:12:47.720,0:12:54.880
+you can also input some very input uh text that 
+the user can fit in and then you post analyze
+
+0:12:54.880,0:13:00.880
+it and it brings a lot of insights as well and 
+finally you can check your app previews again it's
+
+0:13:00.880,0:13:08.400
+very biased but always super insightful and it's 
+it's almost clear they will complain about search
+
+0:13:08.400,0:13:14.520
+they always complain about search even if you have 
+the best search on Earth they will complain about
+
+0:13:14.520,0:13:23.440
+search that's super fun I it's not fun but it's 
+the reality um here I mean it's a super simple
+
+0:13:23.440,0:13:29.600
+slide but actually I think it's one of the most 
+important uh what we have seen here know what the
+
+0:13:29.600,0:13:37.280
+user tell you when you ask those questions is what 
+they feel it's a perception of the user but it
+
+0:13:37.280,0:13:42.880
+might not be the same as the utility for the user 
+for example in the end the users in in wapop they
+
+0:13:42.880,0:13:49.640
+use wapop for buying things not for seeing good 
+results it's very different and sometimes we have
+
+0:13:49.640,0:13:55.360
+this bias here like user perception is one thing 
+and user utility is another thing we will come
+
+0:13:55.360,0:14:03.400
+to it in a few slides uh but keep in mind these 
+different here so business metric what I call
+
+0:14:03.400,0:14:10.160
+business business metric here is something I guess 
+we are more used uh to in this audience like no
+
+0:14:10.160,0:14:16.360
+we have talked a lot today about n dcgs but here 
+I mean also everything related to conversions no
+
+0:14:16.360,0:14:23.240
+search conversions it can be also user engagement 
+retention everything related to zero results and
+
+0:14:23.240,0:14:28.720
+of course everything related directly to revenue 
+can be also good business metrics I will not
+
+0:14:28.720,0:14:36.360
+extend a lot because I think you all know I think 
+you you use them on a daily basis so now we will
+
+0:14:36.360,0:14:42.560
+go through two examples we will stay at a very 
+intuitive level I will not go into into uh more
+
+0:14:42.560,0:14:50.560
+details but I I would like just you to understand 
+more or less the the perception that we have here
+
+0:14:50.560,0:14:59.040
+so the example is as follows I'm searching for ski 
+boots and what happens I again I have six results
+
+0:15:00.000,0:15:06.800
+but two of the results are like nonsense what 
+we don't know why there's those two two results
+
+0:15:06.800,0:15:12.600
+here no the third one and the fifth one here 
+the other ones without more context they look
+
+0:15:12.600,0:15:18.120
+okay maybe they are not because maybe the price 
+is super expensive but at least they they look
+
+0:15:18.120,0:15:24.960
+okay okay like this so first we we we see it 
+from user perspective so what happens when you
+
+0:15:24.960,0:15:30.600
+see this and you can ask the users they will 
+tell you your search is broken it doesn't work
+
+0:15:30.600,0:15:35.600
+there is something wrong it's a bug or you know 
+they don't understand that maybe search is just
+
+0:15:35.600,0:15:42.800
+an algorithm behind that will mat things they 
+don't understand this and so for from a user
+
+0:15:42.800,0:15:50.600
+perspective this is a very bad result and now if 
+you look at it from a business perspective okay
+
+0:15:50.600,0:15:55.840
+those are just two bad results but doesn't really 
+matter no they will not be clicked and that's it
+
+0:15:55.840,0:16:03.680
+no it's not a big drama no um it's almost similar 
+to having skib boots that will not be clicked you
+
+0:16:03.680,0:16:11.680
+know it's very it's not a big deal now I take 
+the opposite example which is I still have my
+
+0:16:11.680,0:16:18.640
+query ski boots and I return two but I know that 
+in in my catalog I had a lot more skib boots that
+
+0:16:18.640,0:16:25.480
+could have been relevant but for whatever reason 
+they will not return to the to the to the user so
+
+0:16:25.480,0:16:33.920
+what happens now I still look at this from user 
+perspective well I see two pair of Hots it's
+
+0:16:33.920,0:16:40.160
+good and so there is no impact on the user because 
+the user cannot know that there were other Goods
+
+0:16:40.160,0:16:46.400
+available in the catalog so it's in the worst 
+case maybe the user will think that the catalog
+
+0:16:46.400,0:16:52.280
+is poor or the application is I mean there are 
+not enough sellers to sell boots but the user
+
+0:16:52.280,0:16:58.960
+will never complain about this search result is 
+super precise fantastic however from a business
+
+0:16:58.960,0:17:05.760
+perspective here this recall issue is can be 
+dramatic because depending on the number of
+
+0:17:05.760,0:17:12.600
+boots that you have failed too much um if you 
+look at your metrics it of course they can be
+
+0:17:12.600,0:17:20.840
+super uh super impacted so you you you have a 
+big uh opportunity loss here so as I said it's
+
+0:17:20.840,0:17:29.840
+just from purely intuitive level what we see is 
+but actually in in practice it will it works very
+
+0:17:29.840,0:17:35.680
+well if you disagree with this we can discuss it 
+later no problem but overall what happens is user
+
+0:17:35.680,0:17:42.240
+perception of search is highly cor to precision 
+and the business metrics highly cor to recall that
+
+0:17:42.240,0:17:48.040
+you have seen before and exactly in the same way 
+uh we have this contradiction between the two it's
+
+0:17:48.040,0:17:53.320
+a little bit counterintuitive because for example 
+we all use n DC because it's supposed to be
+
+0:17:53.320,0:17:59.960
+super correlated with user experience as well so 
+something seems to be broken here and and as like
+
+0:17:59.960,0:18:06.360
+an open controversial question um we can wonder if 
+for example business metrics are more correlated
+
+0:18:06.360,0:18:15.400
+to the utility that I discussed before uh it's 
+not super clear but uh it could be the case so
+
+0:18:15.400,0:18:27.920
+now two extreme cases and I've seen this a lot in 
+different companies no one case uh your team is
+
+0:18:27.920,0:18:35.560
+completely obsessed in optimizing ndgs rankings 
+conversion rates and you are using all the most
+
+0:18:35.560,0:18:42.360
+fancy ml models around and it's the only thing 
+that your team is doing very likely uh you would
+
+0:18:42.360,0:18:48.360
+benefit from just forgetting this about for 
+a moment you take your user hat and you see
+
+0:18:48.360,0:18:54.000
+maybe you you have something very basic broken in 
+your search experience check check your favorite
+
+0:18:54.000,0:19:00.800
+searches your I don't know your suggestor maybe 
+is is not as good as it should be and maybe this
+
+0:19:00.800,0:19:07.240
+will bring a lot more value than just keeping 
+iterating small decimals of NS on your on your
+
+0:19:07.240,0:19:14.120
+search the it's an extreme case I know we most 
+of us we are not like this second case is the
+
+0:19:14.120,0:19:20.600
+opposite like there are teams that are super 
+user Centric only looking at with Obsession at
+
+0:19:20.600,0:19:29.120
+the surveys MPS scores and app previews and very 
+likely they are tending towards optimizing too
+
+0:19:29.120,0:19:36.880
+much for precision and it's almost sure that they 
+are losing a big Opportunity by not checking Rec
+
+0:19:36.880,0:19:42.720
+in those cases so again I'm generalizing it's not 
+always like this but I think it it happens in many
+
+0:19:42.720,0:19:50.680
+cases okay now from the people 
+here who is like on the tech
+
+0:19:50.680,0:19:58.640
+side of search like Engineers 
+data scientists ml scientist
+
+0:20:00.200,0:20:07.680
+yeah quite quite a lot and how many are more on 
+the product side I don't know product managers
+
+0:20:07.680,0:20:17.480
+designers a bit less so you will tell you will 
+tell me if this applies to you or not I'm not
+
+0:20:17.480,0:20:25.400
+sure so you usually what happens is that the the 
+first case that I explained here uh we see a lot
+
+0:20:25.400,0:20:31.120
+of teams heavily relying on search Engineers 
+ml all those kind of more Tech profiles they
+
+0:20:31.120,0:20:38.800
+tend to focus a lot more on those aspects of 
+purely uh NDC GS and so on and the teams that
+
+0:20:38.800,0:20:44.760
+are more Centric like with a lot of weight on 
+the product management side designer you ux
+
+0:20:44.760,0:20:50.240
+researchers usually they see it very differently 
+they don't care about indic at all and you can
+
+0:20:50.240,0:20:56.200
+say that you want to use I don't know a fancy 
+algorithm why because your search is broken
+
+0:20:56.200,0:21:03.600
+doesn't really make sense no so overall I think 
+we the the overall search Community will gain a
+
+0:21:03.600,0:21:13.320
+lot if we manage to close this gap between the 
+two views um let me check my time okay we will
+
+0:21:13.320,0:21:22.800
+illustrate a little bit this difference uh on the 
+the the query specificity example here okay and we
+
+0:21:22.800,0:21:29.640
+will see cases where expanding too much on recall 
+can also hurt a lot the user I take an example
+
+0:21:29.640,0:21:38.040
+here which is very basic I have a query which 
+is Fender uh so it's a music brand and at this
+
+0:21:38.040,0:21:43.600
+stage we don't know more like it can be anything 
+it can be a guitar it can be an amplifier it can
+
+0:21:43.600,0:21:52.160
+be anything of this brand and you see there there 
+are quite a lot of results now if I keep typing I
+
+0:21:52.160,0:21:58.520
+enter faster which is the the type of guitar so 
+now we know it's a guitar so when you do this
+
+0:21:59.280,0:22:05.480
+you see there are less results no it's pretty 
+intuitive and if I keep writing I get to a point
+
+0:22:05.480,0:22:13.680
+where I have very few results and this is this 
+behavior when the query specificity increases
+
+0:22:13.680,0:22:18.560
+um and you see less and less and less results 
+it's something very intuitive for the users
+
+0:22:18.560,0:22:23.600
+they are expecting this from the search engine 
+they are not expecting to see the same number
+
+0:22:23.600,0:22:29.840
+of results when you increase the the specificity 
+of the query and now in many many places you see
+
+0:22:29.840,0:22:35.760
+this behavior is broken you will see always the 
+same number of results no matter what is the the
+
+0:22:35.760,0:22:43.800
+query specificity no so like the the intuition of 
+the user is when you increase specificity which
+
+0:22:43.800,0:22:50.200
+is this axis here you should see a decrease on 
+number of results and pretty quickly you will
+
+0:22:50.200,0:22:58.640
+get to a point where you have zero results which 
+is uh logical I would say the big problem here is
+
+0:22:58.640,0:23:03.760
+and we all know it when you get to this phase 
+where you have zero or very few results it's not
+
+0:23:03.760,0:23:11.120
+good for the for the users and it's not good for 
+the business neither so this is the little icon
+
+0:23:11.120,0:23:16.840
+we show to our users when there is no results 
+and now we one of goal is to avoid this now
+
+0:23:16.840,0:23:26.440
+it's very bad for the users so actually there are 
+two reasons for having zero results no one is you
+
+0:23:26.440,0:23:32.440
+don't have any res any relevant results in your 
+catalog in this case it's very good to say to
+
+0:23:32.440,0:23:38.720
+your user okay I don't have any relevant result 
+for you it's transparency know and actually I
+
+0:23:38.720,0:23:46.480
+think Eric P gave a talk on this I don't know 
+when one year ago also so some of you I think
+
+0:23:46.480,0:23:55.640
+know know this guy and so this is one one reason 
+for not getting relevant result the second reason
+
+0:23:55.640,0:24:02.480
+for getting zero result is uh you have actually in 
+your catalog relevant results but something went
+
+0:24:02.480,0:24:08.680
+wrong in the matching phase in the retrieval phase 
+and you could not match uh you could you could
+
+0:24:08.680,0:24:13.880
+not find those items no in this case of course 
+you need to improve your recal but not at all
+
+0:24:13.880,0:24:22.680
+cost actually something interesting uh 
+in real life is that in the end if you
+
+0:24:22.680,0:24:28.360
+think about it the probability of a bad matching 
+happening when the query specificity increases
+
+0:24:29.600,0:24:35.720
+uh is also increasing because no the more words 
+you have the more probability you have of having
+
+0:24:35.720,0:24:42.800
+typos synonyms in between that can prevent 
+the matching vocabulary gap of course over
+
+0:24:42.800,0:24:47.080
+specification as well now users type writing 
+words that are not so useful but they will kill
+
+0:24:47.080,0:24:56.240
+the matching and so this happens a lot now if you 
+look at it from a little bit more Modern Eyes now
+
+0:24:56.240,0:25:03.360
+for example if you do a pure old cool keyword 
+matching with an end you will see this behavior
+
+0:25:03.360,0:25:09.560
+that the users are expecting like the more words 
+the less results it's like what you it's what you
+
+0:25:09.560,0:25:16.920
+get in common search engines now if if you do some 
+Vector search assuming you will retrieve the top K
+
+0:25:16.920,0:25:24.600
+you will get K all the time doesn't really matter 
+how many terms or specificity you have and so
+
+0:25:24.600,0:25:33.760
+basically the user intuition is broken here and 
+even if you go for other types of of techniques
+
+0:25:33.760,0:25:39.320
+like Spate for example not this Spar Square 
+expansion it can even be worse like the more words
+
+0:25:39.320,0:25:45.400
+you add the bigger is your expansion and the more 
+results you will get when you do the dot product
+
+0:25:45.400,0:25:53.560
+so what happens is that usually this Zone here 
+is fantastic for the business because you you
+
+0:25:53.560,0:25:58.640
+you manage to return a lot of content 
+to the users and very likely they met
+
+0:25:58.640,0:26:05.760
+will go up but because you completely break 
+the intuition for the user on this topic this
+
+0:26:05.760,0:26:09.320
+is not so good for the user in the end 
+so you want to be if you want to go in
+
+0:26:09.320,0:26:14.400
+this space you need to do something for 
+your users because otherwise on the long
+
+0:26:14.400,0:26:19.600
+term you you might have some some issues 
+like users might not be retained or might
+
+0:26:19.600,0:26:28.240
+go to another app for example even if again in 
+terms of ncgs and so on maybe this is fantastic
+
+0:26:30.120,0:26:36.200
+so here what what we see now it's aggressively 
+improving recall for specific queries it's true
+
+0:26:36.200,0:26:41.840
+that it will help you tackle the zero or few 
+results problem and very likely it will be
+
+0:26:41.840,0:26:51.040
+good for your business metrics but you should not 
+forget about this user perception aspect so the
+
+0:26:51.040,0:26:58.400
+question is how can we be in this space here 
+but taking into account what the user expects
+
+0:26:58.400,0:27:05.800
+no so here again it's not really specific to wup 
+and I'm sure you will have better solution than
+
+0:27:05.800,0:27:11.560
+this but I would just provide some guidance 
+on things we can do and probably things that
+
+0:27:11.560,0:27:17.680
+some of you are already doing uh so an an 
+obvious thing I guess probably if you are
+
+0:27:17.680,0:27:23.720
+using like semantic search Vector search 
+or whatever probably you are already doing
+
+0:27:23.720,0:27:30.760
+things like this no uh which is post filtering 
+uh because your you know your retrieval can go
+
+0:27:30.760,0:27:36.560
+a little bit crazy so at least if you make 
+sure you post filter some of the results
+
+0:27:36.560,0:27:40.560
+to make sure I don't know for example you 
+are in the right category you will probably
+
+0:27:40.560,0:27:46.400
+limit the risk of having very bad results 
+so that's what we call here filtering out
+
+0:27:46.400,0:27:54.200
+defects uh so this is overall not to limit those 
+kind of examples but it will not help with the
+
+0:27:54.200,0:28:04.920
+query specificity example I shown before the 
+second option is actually because we are always
+
+0:28:04.920,0:28:11.920
+talking about search results but you can also 
+change the UI of your search and it's not so
+
+0:28:11.920,0:28:19.080
+hard if you think about it it's it's not so hard 
+so what about instead of having one infinite fit
+
+0:28:19.080,0:28:25.200
+of results you can just split into two parts 
+one super super focused on precision and the
+
+0:28:25.200,0:28:32.360
+other ones you can call it like a more recall part 
+part no recall section in this case uh it can be
+
+0:28:32.360,0:28:38.080
+good because for example in the first section 
+I can show my exact matchings matches which is
+
+0:28:38.080,0:28:44.600
+basically the ones I am almost 100% sure they 
+correspond to the intent of the user in my case
+
+0:28:44.600,0:28:51.280
+of before I would show my the only exact guitar 
+that the user is looking for and then in the other
+
+0:28:51.280,0:28:58.040
+section I can show basically what I want doesn't 
+really matter I can promote a lot if I want the
+
+0:28:58.600,0:29:07.280
+promoted items from for the business and I I can 
+also avoid zero results because maybe there is
+
+0:29:07.280,0:29:13.880
+not exactly this model here I can relax a little 
+bit I can use the the techniques that Renee shared
+
+0:29:13.880,0:29:21.680
+last year for example and so it can also be a 
+very good strategic strategic change no because
+
+0:29:21.680,0:29:28.280
+you you have very little risk on the second 
+section so it it sounds like a good compromise
+
+0:29:28.280,0:29:35.840
+however of course it comes also with some 
+drawbacks you add some complexity into it
+
+0:29:35.840,0:29:42.160
+you have to manage now two set of results so in 
+terms of logging also if you want to collect the
+
+0:29:42.160,0:29:50.560
+feedbacks of the users it might not be so so easy 
+as before and also the the question of always no
+
+0:29:50.560,0:29:55.440
+where where do you cut now how do you decide that 
+this one should be in the first section and this
+
+0:29:55.440,0:30:02.920
+one in the second one uh the this depends a lot 
+on on on your business it's not so so easy but at
+
+0:30:02.920,0:30:11.080
+least you have decoupled the two things and from a 
+user perspective it's more intuitive okay and also
+
+0:30:11.080,0:30:18.880
+very important in the lights of what we have seen 
+just before um if you think about it we are always
+
+0:30:18.880,0:30:24.840
+optimizing things for the average user because we 
+are we are taking averages everywhere in n thises
+
+0:30:24.840,0:30:30.120
+in all the metrics but in the end an average user 
+does not is they are al they are very different
+
+0:30:30.120,0:30:37.200
+the users and for example we see it in in WAP now 
+there are users that clearly prefer Simplicity of
+
+0:30:37.200,0:30:43.640
+the search box they type everything in the search 
+box and they start to write in natural language
+
+0:30:43.640,0:30:49.480
+because now it's more normal even the price 
+filter they would write uh looking for chairs
+
+0:30:49.480,0:30:57.920
+under2 and there are some users and there 
+will always be users that prefer the hardcoree
+
+0:30:58.520,0:31:04.240
+hardcore filter experience and you need to 
+provide filters so they would write write
+
+0:31:04.240,0:31:09.840
+chair and you you need to provide filters that 
+make sense like in price in seller rating or
+
+0:31:09.840,0:31:17.040
+whatever so and overall when you listen to your 
+users in those interviews or whatever you will
+
+0:31:17.040,0:31:23.880
+see that those kind of users are still very 
+important because maybe also those are core
+
+0:31:23.880,0:31:30.600
+users that use your app since a lot of time and 
+they are not taking changes in your product in
+
+0:31:30.600,0:31:37.520
+in a very positive way so you don't want to lose 
+them and and there are very simple things you can
+
+0:31:37.520,0:31:45.600
+do and you should not forget about those things 
+it's very easy to enable in your UI the the user
+
+0:31:45.600,0:31:53.400
+to to search on title only or exact matches 
+you know very basic things that you had like
+
+0:31:53.400,0:31:59.480
+20 years ago uh pretty easy to implement but 
+it can bring a lot of value to your to your
+
+0:31:59.480,0:32:14.840
+users I've seen I've seen your some takeaways 
+so overall when you build the search system uh
+
+0:32:14.840,0:32:19.880
+it's not all about ncgs and so on you you have 
+to take into account business metrics but also
+
+0:32:19.880,0:32:25.960
+the user perception metrics uh again sit down 
+with your users and talk to them it's very
+
+0:32:25.960,0:32:31.040
+insightful overall and if you disagree or if 
+you have different experience we can discuss
+
+0:32:31.040,0:32:37.120
+it later but overall business metrics they are 
+more related to recall and user perception and
+
+0:32:37.120,0:32:42.400
+I insist it's perception of the user it's more 
+related to Precision so it's kind of the same
+
+0:32:42.400,0:32:49.400
+old tradeoff that we we have always uh had inert 
+an important point that we have briefly discussed
+
+0:32:49.400,0:32:54.160
+is that user perception that you collect via 
+those metrics in the end it's not the same
+
+0:32:54.160,0:33:00.480
+as user utility and here uh again I think we we 
+should open a discussion maybe it's uh the same
+
+0:33:00.480,0:33:06.760
+but maybe it's not and of course you should not 
+blind blindly trust your business metric but also
+
+0:33:06.760,0:33:12.560
+not blindly trust your user perception metric 
+the two are kind of flowed and in the end it's
+
+0:33:12.560,0:33:18.960
+very I think it's it's better to to look at 
+them holistically and the the two at the same
+
+0:33:18.960,0:33:26.960
+time we know in the case of query specificity we 
+have seen other there in the end there there are
+
+0:33:26.960,0:33:33.160
+simple ways you can optimize recall without 
+impacting precision too much at least without
+
+0:33:33.160,0:33:38.680
+compromising the experience uh and what I mean 
+there are other techniques than the one we have
+
+0:33:38.680,0:33:44.160
+seen here but sometimes it's very it's very easy 
+and it's even easier to do those kind of things
+
+0:33:44.160,0:33:50.880
+than trying to complexify too much your ranking 
+algorithm to take multiobjectives or whatever
+
+0:33:50.880,0:33:58.040
+now sometime we it's better to take like a step 
+back and think about the the overall experience
+
+0:33:58.040,0:34:02.840
+and of course for example at some point 
+depending on the maturity of your product
+
+0:34:02.840,0:34:09.840
+um you might want to decide to change the UI 
+and add sections for example but maybe in few
+
+0:34:09.840,0:34:15.800
+years from now the maturity of your product has 
+changed and you want to move back to one single
+
+0:34:15.800,0:34:21.240
+section it it really depend on on the maturity 
+of your of your product and also on on business
+
+0:34:21.240,0:34:27.840
+priorities and finally for those two things non 
+business metrics and for user metrics as well
+
+0:34:27.840,0:34:32.760
+it's very important to keep experimenting 
+measuring it's like everything is about
+
+0:34:32.760,0:34:40.040
+feedback loops now as we have seen this morning 
+so it's we I think we all know it for uh the the
+
+0:34:40.040,0:34:45.520
+models we use we want to do a testings and so 
+on but it's also true for the user perception
+
+0:34:45.520,0:34:52.880
+metric you want to set up a system where you 
+can you can track them and also uh make sure
+
+0:34:52.880,0:34:57.760
+you are not degrading through time and it's 
+it's interesting here we have discussed about
+
+0:34:57.760,0:35:04.480
+about those user perception metric and could be 
+interesting to discuss if they are somehow linked
+
+0:35:04.480,0:35:09.280
+to the Ubi metrics we have discussed this morning 
+it's not exactly the same thing but maybe there
+
+0:35:09.280,0:35:20.840
+are ways to to log those as well uh in a similar 
+framework okay and I think that's all gracias
+
+0:35:20.840,0:35:31.440
+and thank you thank you julan do 
+we have any questions here in the
+
+0:35:31.440,0:35:42.840
+audience uh thanks for the talk I was wondering 
+how do you advise Engineers to take on the users
+
+0:35:42.840,0:35:49.080
+hat do you think they should just look at the 
+results from a users's perspective or should
+
+0:35:49.080,0:35:54.080
+get involved in the user interviews or stuff 
+like that yeah it's it's a very good question
+
+0:35:54.080,0:36:01.560
+actually that's what we we invite them directly 
+to assist to those interviews and usually that's
+
+0:36:01.560,0:36:07.920
+what happens is that they are surprised because 
+the the users are not behaving as expected and
+
+0:36:07.920,0:36:15.600
+also because Engineers they are quite used to to 
+metrics to those n DCS and so on so also checking
+
+0:36:15.600,0:36:23.800
+more like qu on a quarterly basis on those surveys 
+uh even looking at the the reviews and so on is a
+
+0:36:23.800,0:36:31.680
+little bit the same no it's like it tells a lot 
+about your search so yeah and it's not it's not
+
+0:36:31.680,0:36:37.840
+too hard in the end and usually it comes from 
+it's it's driven by ux researchers or product
+
+0:36:37.840,0:36:47.680
+managers um so usually we we need those profiles 
+to encourage search Engineers to to look at this
+
+0:36:47.680,0:36:53.920
+and I would say the other way around is true as 
+well like quite often ux researcher designers and
+
+0:36:53.920,0:37:00.280
+so on they only look at user metrics but when 
+when you talk about n dcgs you they think that
+
+0:37:00.280,0:37:07.760
+you are just crazy optimizing but so yeah it's 
+like both sides thank you thanks I'll take that
+
+0:37:07.760,0:37:19.120
+home thank you we have one question online it's a 
+bit longer I try to um interpret or paraphrase so
+
+0:37:19.120,0:37:25.960
+the question is whether we can use explicit user 
+feedback like disliking a certain search result
+
+0:37:25.960,0:37:33.960
+and use that as kind of a feedback loop to yeah 
+use more personalized uh models that optimize or
+
+0:37:33.960,0:37:38.840
+find a different balance between position 
+and recall um like reinforcement learning
+
+0:37:38.840,0:37:45.640
+for human feedback is that something that would 
+improve the situation in your opinion or is that
+
+0:37:45.640,0:37:52.720
+a viable approach I think it's a great question 
+I think usually what happens is that it might
+
+0:37:52.720,0:37:57.600
+not be so scalable because if you need you need 
+to collect those feedbacks and users will will
+
+0:37:57.600,0:38:03.040
+not spend a lot of time giving feedback so 
+I think it's a very it's a very useful uh
+
+0:38:03.040,0:38:09.240
+signal you can use you can even use it to train 
+your models and so on or to monitor I think the
+
+0:38:09.240,0:38:15.400
+difficulty here is to have really a scalable 
+solution that you can collect enough of those
+
+0:38:15.400,0:38:21.720
+feedbacks so up to getting to a point where you 
+can personalize it yeah maybe because if a user
+
+0:38:21.720,0:38:27.640
+gives you clear uh Insight that something 
+is wrong you can you can easily introduce it
+
+0:38:27.640,0:38:36.000
+in your personalized experience but overall I 
+think the at least the way we do it it's not
+
+0:38:36.000,0:38:42.680
+really scalable because also we we don't provide 
+like a way to give feedback on each single result
+
+0:38:42.680,0:38:52.360
+no it's more every x positions we show like a 
+small box to request feedback so I think the
+
+0:38:52.360,0:38:58.920
+the what is proposing in in the question is more 
+having a specific button somewhere to get the
+
+0:38:58.920,0:39:03.080
+feedback than another
+
+0:39:03.080,0:39:16.400
+question hi uh thanks a lot um yeah I really 
+like the presentation I really agree with the
+
+0:39:16.400,0:39:21.800
+idea that you know user experience has to be 
+really important in this stuff my question
+
+0:39:21.800,0:39:27.480
+is or my understanding of like a lot of search 
+applications is that things like recall are kind
+
+0:39:27.480,0:39:31.920
+of unknowable because a lot of the time you 
+don't actually know what the true positives
+
+0:39:31.920,0:39:37.600
+are that you're searching for right so how do 
+you get around that or what sort of metrics are
+
+0:39:37.600,0:39:44.680
+you actually using to approximate recoil yeah can 
+you please repeat the I I couldn't hear the second
+
+0:39:44.680,0:39:50.280
+part of your if you have a situation where you 
+don't actually know what the most relevant results
+
+0:39:50.280,0:39:57.560
+are for a query how do you calculate recall yeah 
+no it's a good question actually the example I
+
+0:39:57.560,0:40:04.080
+is pretty easy because um even if you look 
+you think about it as exact match or exact
+
+0:40:04.080,0:40:10.400
+term match then you know where to stop no but in 
+most of the cases I agree with you it's complex
+
+0:40:10.400,0:40:18.720
+you could have like a no actually what what 
+we have quite often is the the relevance the
+
+0:40:18.720,0:40:24.800
+relevance does not only depend on the semantic 
+relevance there is many things happening uh no
+
+0:40:24.800,0:40:30.920
+other factors that are also important so at 
+least in marketplaces what happens sometimes
+
+0:40:30.920,0:40:37.600
+is that you you can have a dedicated model 
+only for purely semantic relevance on top of
+
+0:40:37.600,0:40:44.480
+it and then you can use it to decide if it's good 
+enough for uh the the first part or not but it's
+
+0:40:44.480,0:40:50.840
+very specific to secondhand C2C marketplaces it 
+might not work in other other places but I agree
+
+0:40:50.840,0:40:57.240
+with you it's that's the the old challenge 
+of this you don't know where to to stop yeah
+
+0:41:02.400,0:41:03.200
+okay any more
+
+0:41:03.200,0:41:19.720
+questions uh muchas gracias for a nice 
+presentation uh I wanted to ask you mentioned
+
+0:41:19.720,0:41:25.680
+a bunch of uh very uh pragmatic practical 
+tools to understand what your users doing
+
+0:41:25.680,0:41:32.280
+better have you ever used session recordings 
+as a way to observe what users are doing when
+
+0:41:32.280,0:41:39.880
+you are really not watching like I mean real 
+recordings like video you mean recordings of
+
+0:41:39.880,0:41:44.520
+the users of the session yeah yeah that's 
+what I meant by user interviews so we see
+
+0:41:44.520,0:41:53.400
+the user directly no no not user interviews 
+but uh like uh getting um users to accept uh
+
+0:41:53.400,0:42:00.160
+some uh parameters and just tools that requ 
+record live sessions and you can review later
+
+0:42:00.160,0:42:06.400
+just screen recording no it's a it's a good point 
+now we at least on my experience we have not used
+
+0:42:06.400,0:42:12.480
+this but I can also ask to our ux researcher 
+if it's something we can we can use it's a
+
+0:42:12.480,0:42:16.720
+good question when we can maybe talk about it 
+later I would love to I would love to thank
+
+0:42:16.720,0:42:27.200
+you yeah I have a question about the 
+generalizability about the assumption that um
+
+0:42:27.200,0:42:34.760
+Precision correlates with uh the user perception 
+so I definitely subscribe to it in e-commerce uh
+
+0:42:34.760,0:42:40.720
+maybe less so in B2B where it's a lot about known 
+item and if I can't find this item that I know
+
+0:42:40.720,0:42:48.600
+must be there there might be more about recall and 
+then there might be more recall dependent domains
+
+0:42:48.600,0:42:54.280
+like let's say legal search or something so I 
+don't know maybe there's always this element of
+
+0:42:54.280,0:43:00.960
+trust which goes with position or maybe there's 
+a recall aspect in other domains so what's your
+
+0:43:00.960,0:43:07.120
+take on that it's a very good question actually 
+that's also that why I wanted to trigger is those
+
+0:43:07.120,0:43:12.920
+kind of discussions because at least in in Market 
+in Marketplace it's pretty obvious that if if you
+
+0:43:12.920,0:43:20.320
+look at the complaints of the users it's like 99% 
+of the cases that search is not relevant it's it's
+
+0:43:20.320,0:43:27.560
+really about lack of precision of the sh but 
+if you look at then how the the business metric
+
+0:43:27.560,0:43:32.560
+correlate with your changes it's like wow wow 
+it's no no it's not Precision the problem it's
+
+0:43:32.560,0:43:38.320
+a recall problem that we have but I agree with 
+you that it might not apply in other fields and
+
+0:43:38.320,0:43:43.360
+even in e-commerce it's true that maybe it's 
+not 100% true so all of this has to be taken
+
+0:43:43.360,0:43:50.680
+with it's more like aspirational and but we 
+can yeah we can again we can discuss it later
+
+0:43:50.680,0:43:57.040
+it's interesting and I would be super happy 
+to hear uh what what you think about all this
+
+0:43:58.800,0:44:13.720
+okay let's thank Julian again for this great talk

@@ -1,0 +1,16 @@
+Below is the description of a talk given at the Haystack Conference on search, AI, and information retrieval. It is followed by a computer-generated transcript that has errors and lacks formatting. Your job will be to use the description to help with correcting domain-specific words, names, and obvious mistakes in the transcription.
+
+The output should be complete sentences and paragraphs. Remove verbal tics like "um" and "uh".
+
+The first part of the transcript is the host introducing the speaker and the presentation. The last part is a short Q&A session with audience members. Find where these changes in speakers happens in the transcript and make a new paragraph to indicate the change in speaker. If you can deduce it from the transcript, prefix the paragraph with the speaker's name or their role (host, audience member).
+
+Respond ONLY with the clean version of the transcript.
+
+
+<description>
+$description
+</description>
+
+<transcript>
+$transcript
+</transcript>
