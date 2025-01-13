@@ -10,6 +10,9 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
+Then add a `.env` file to the project's root directory that contains your OPENAI_API_KEY.
+
+
 ## Handy Commnads
 Get the list of all videos (this isn't working to get just a flat list of playlists - removing the extra slash doesn't help)
 ```bash
